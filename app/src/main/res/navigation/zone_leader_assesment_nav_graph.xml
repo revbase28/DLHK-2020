@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/zone_leader_assessment_nav_graph"
+    app:startDestination="@id/drainageAssesmentFragment">
+
+    <fragment
+        android:id="@+id/drainageAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.DrainageAssesmentFragment"
+        android:label="fragment_drainage_assessment"
+        tools:layout="@layout/fragment_assessment_drainage" >
+        <action
+            android:id="@+id/action_drainageAssesmentFragment_to_sweeperAssesmentFragment"
+            app:destination="@id/sweeperAssesmentFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"/>
+        <action
+            android:id="@+id/action_drainageAssesmentFragment_to_garbageCollectorAssesmentFragment"
+            app:destination="@id/garbageCollectorAssesmentFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"/>
+    </fragment>
+    <fragment
+        android:id="@+id/garbageCollectorAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.GarbageCollectorAssesmentFragment"
+        android:label="fragment_garbage_collector_assesment"
+        tools:layout="@layout/fragment_assesment_garbage_collector" >
+        <action
+            android:id="@+id/action_garbageCollectorAssesmentFragment_to_sweeperAssesmentFragment"
+            app:destination="@id/sweeperAssesmentFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"/>
+        <action
+            android:id="@+id/action_garbageCollectorAssesmentFragment_to_drainageAssesmentFragment"
+            app:destination="@id/drainageAssesmentFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/sweeperAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.SweeperAssesmentFragment"
+        android:label="fragment_sweeper_assessment"
+        tools:layout="@layout/fragment_assessment_sweeper" >
+        <action
+            android:id="@+id/action_sweeperAssesmentFragment_to_garbageCollectorAssesmentFragment"
+            app:destination="@id/garbageCollectorAssesmentFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"/>
+        <action
+            android:id="@+id/action_sweeperAssesmentFragment_to_drainageAssesmentFragment"
+            app:destination="@id/drainageAssesmentFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"/>
+    </fragment>
+</navigation>

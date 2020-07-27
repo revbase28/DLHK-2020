@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/region_coordinator_nav_graph"
+    app:startDestination="@id/drainageHeadAssesmentFragment">
+
+    <fragment
+        android:id="@+id/sweeperHeadAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssesmentFragment"
+        android:label="fragment_assesment_sweeper_head"
+        tools:layout="@layout/fragment_assesment_sweeper_head" >
+        <action
+            android:id="@+id/action_sweeperHeadAssesmentFragment_to_drainageHeadAssesmentFragment"
+            app:destination="@id/drainageHeadAssesmentFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/drainageHeadAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.DrainageHeadAssesmentFragment"
+        android:label="fragment_assesment_drainage_head"
+        tools:layout="@layout/fragment_assesment_drainage_head" >
+        <action
+            android:id="@+id/action_drainageHeadAssesmentFragment_to_sweeperHeadAssesmentFragment"
+            app:destination="@id/sweeperHeadAssesmentFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"/>
+    </fragment>
+</navigation>

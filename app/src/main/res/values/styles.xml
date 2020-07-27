@@ -1,0 +1,28 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="EditTextInputBlueLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/colorPrimary</item>
+        <item name="boxStrokeWidth">0.5dp</item>
+        <item name="hintTextAppearance">@color/colorPrimary</item>
+    </style>
+
+    <style name="EditTextInputGreenLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/green</item>
+        <item name="boxStrokeWidth">0.5dp</item>
+        <item name="hintTextAppearance">@color/green</item>
+    </style>
+
+    <style name="EditTextInputOrangeLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/orange</item>
+        <item name="boxStrokeWidth">0.5dp</item>
+        <item name="hintTextAppearance">@color/orange</item>
+    </style>
+
+</resources>
