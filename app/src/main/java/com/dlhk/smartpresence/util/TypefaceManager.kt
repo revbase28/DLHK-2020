@@ -12,7 +12,7 @@ class TypefaceManager(
         setTypeface()
     }
 
-    lateinit var segoe_ui: TypefaceCollection;
+    lateinit var segoe_ui: TypefaceCollection
 
     fun setTypeface(){
         segoe_ui = TypefaceCollection.Builder()
