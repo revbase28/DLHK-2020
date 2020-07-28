@@ -37,13 +37,13 @@ class SessionManager(val context: Context) {
             commit()
         }
     }
+
     fun saveSessionRegion(region: String){
         editor.apply {
             putString(SESSION_REGION, region)
             commit()
         }
     }
-
 
     fun getSessionName() : String? { return preferences.getString(SESSION_NAME, "")}
     fun getSessionRole() : String? { return preferences.getString(SESSION_ROLE, "")}

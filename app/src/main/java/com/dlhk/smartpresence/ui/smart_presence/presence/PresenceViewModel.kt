@@ -1,32 +1,26 @@
 package com.dlhk.smartpresence.ui.smart_presence.presence
 
-import android.Manifest
-import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.os.Environment
-import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dlhk.smartpresence.LocationLiveData
 import com.dlhk.smartpresence.api.response.ResponsePresence
 import com.dlhk.smartpresence.repositories.AttendanceRepo
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.Utility
-import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.parse
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class PresenceViewModel(
     val repo: AttendanceRepo,
@@ -45,10 +39,15 @@ class PresenceViewModel(
        return Utility.decodeFile(path)
     }
 
-    fun sendPresence(employeeId: Long, dateOfPresence: String, coordinate: String, livePhoto: ByteArray){
+    fun sendPresence(employeeId: Long, dateOfPresence: String, coordinate: String, livePhoto: File){
         viewModelScope.launch {
             presenceData.postValue(Resource.Loading())
-            val response = repo.presence(employeeId, dateOfPresence, coordinate, livePhoto)
+            val body = livePhoto.asRequestBody("image/*".toMediaTypeOrNull())
+            val image = MultipartBody.Part.createFormData("image", livePhoto.name, body)
+            val req_dateOFPresence = dateOfPresence.toRequestBody("text/plain".toMediaTypeOrNull());
+            val req_coordinate = coordinate.toRequestBody("text/plain".toMediaTypeOrNull());
+
+            val response = repo.presence(employeeId, req_dateOFPresence, req_coordinate, image)
             presenceData.postValue(handlePresenceResponse(response))
         }
     }

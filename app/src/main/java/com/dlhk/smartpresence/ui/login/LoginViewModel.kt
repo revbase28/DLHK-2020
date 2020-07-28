@@ -1,35 +1,36 @@
 package com.dlhk.smartpresence.ui.login
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dlhk.smartpresence.api.response.ResponseClaimUserData
+import com.dlhk.smartpresence.api.response.ResponseGetEmployee
 import com.dlhk.smartpresence.api.response.ResponseLogin
+import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.repositories.UserManagementRepo
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import retrofit2.Response
 import java.net.SocketTimeoutException
 
 class LoginViewModel(
-    val repo: UserManagementRepo
+    val userManagementRepo: UserManagementRepo,
+    val employeeRepo: EmployeeRepo
 ) : ViewModel() {
 
     val loginData: MutableLiveData<Resource<ResponseClaimUserData>> = MutableLiveData()
+    val employeeData : MutableLiveData<Resource<ResponseGetEmployee>> = MutableLiveData()
     lateinit var claimUserData: Response<ResponseClaimUserData>
 
     fun login(username: String, password: String, context: Context) {
         try{
             viewModelScope.launch {
                 loginData.postValue(Resource.Loading())
-                val loginResponse = repo.login(username, password)
+                val loginResponse = userManagementRepo.login(username, password)
                 handleLoginResponse(loginResponse)
             }
         }catch (e: Exception){
@@ -55,9 +56,17 @@ class LoginViewModel(
         }
     }
 
+    fun getEmployeePerRegion(zoneName: String, regionName: String){
+        viewModelScope.launch {
+            employeeData.postValue(Resource.Loading())
+            val getEmployeeResponse = employeeRepo.getEmployeePerRegion(zoneName, regionName)
+            handleGetEmployeeResponse(getEmployeeResponse)
+        }
+    }
+
     private suspend fun claimUserData(accessToken: String): Response<ResponseClaimUserData> {
         val job = viewModelScope.launch {
-                val claimUserDataResponse = repo.claimUserData(accessToken)
+                val claimUserDataResponse = userManagementRepo.claimUserData(accessToken)
                 claimUserData = claimUserDataResponse
             }
         job.join()
@@ -86,6 +95,16 @@ class LoginViewModel(
             }
         }else{
             loginData.postValue(Resource.Error(response.message()))
+        }
+    }
+
+    private fun handleGetEmployeeResponse(response: Response<ResponseGetEmployee>){
+        if(response.isSuccessful){
+            response.body()?.let { employeeResult ->
+                employeeData.postValue(Resource.Success(employeeResult))
+            }
+        }else{
+            employeeData.postValue(Resource.Error(response.message()))
         }
     }
 }

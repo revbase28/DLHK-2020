@@ -3,7 +3,7 @@ package com.dlhk.smartpresence.api.response.data
 data class DataEmployee(
     val age: Int,
     val bank: String,
-    val employeeId: Int,
+    val employeeId: Long,
     val employeeNumber: String,
     val firstContract: String,
     val lastContract: String,

@@ -25,4 +25,10 @@
         <item name="hintTextAppearance">@color/orange</item>
     </style>
 
+    <style name="EditTextDropdownInputGreenLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">@color/green</item>
+        <item name="boxStrokeWidth">0.5dp</item>
+        <item name="hintTextAppearance">@color/green</item>
+    </style>
+
 </resources>

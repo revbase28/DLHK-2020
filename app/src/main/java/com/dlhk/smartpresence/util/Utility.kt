@@ -14,6 +14,11 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
+import id.zelory.compressor.Compressor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -49,6 +54,12 @@ class Utility {
             val currentDate = sdf.format(Calendar.getInstance().time)
 
             return currentDate
+        }
+
+        suspend fun compressFile(context: Context, file: File) : File{
+            return CoroutineScope(IO).async {
+                Compressor.compress(context, file)
+            }.await()
         }
     }
 }

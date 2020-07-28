@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:hint="NIK"
             android:textColorHint="@color/lightBlack"
@@ -63,41 +63,42 @@
             app:hintTextColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageViewFoto">
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutName">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/nik"
+                android:id="@+id/etNik"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
+                android:enabled="false"
                 android:inputType="numberSigned"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutName"
-            style="@style/EditTextInputGreenLayoutStyle"
+            style="@style/EditTextDropdownInputGreenLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:hint="Name"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:hintTextColor="@color/green"
+            app:endIconMode="none"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNIK">
+            app:layout_constraintTop_toBottomOf="@+id/imageViewFoto">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
                 android:id="@+id/etName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:textColor="@color/black"/>
+                android:focusable="true"
+                android:inputType="text"
+                android:textColor="@color/black"  />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -107,7 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:hint="Wilayah"
             android:textColorHint="@color/lightBlack"
@@ -115,16 +116,15 @@
             app:hintTextColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutName">
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNIK">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etWilayah"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
+                android:enabled="false"
                 android:inputType="text"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,6 +149,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
+                android:enabled="false"
                 android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -173,8 +174,7 @@
                 android:id="@+id/etBagian"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
+                android:enabled="false"
                 android:inputType="text"
                 android:textColor="@color/black" />
 

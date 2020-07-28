@@ -1,8 +1,11 @@
 package com.dlhk.smartpresence.api
 
 import com.dlhk.smartpresence.api.response.ResponseClaimUserData
+import com.dlhk.smartpresence.api.response.ResponseGetEmployee
 import com.dlhk.smartpresence.api.response.ResponseLogin
 import com.dlhk.smartpresence.api.response.ResponsePresence
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 import java.io.File
@@ -24,13 +27,13 @@ interface ApiInterface {
     suspend fun getEmployeePerRegion(
         @Path(value="zoneName", encoded = true) zoneName: String,
         @Path(value="regionName", encoded = true) regionName: String
-    )
+    ): Response<ResponseGetEmployee>
 
     @Multipart
     @POST("presence")
     suspend fun sendPresence(
-        @Field("employeeId") employeeId:Long,
-        @Field("dateOfPresence") presenceDate: String,
-        @Field("coordinate") coordinate: String,
-        @Field("livePhoto") livePhoto: ByteArray): Response<ResponsePresence>
+        @Part("employeeId") employeeId:Long,
+        @Part("dateOfPresence") presenceDate: RequestBody,
+        @Part("coordinate") coordinate: RequestBody,
+        @Part livePhoto: MultipartBody.Part ): Response<ResponsePresence>
 }
