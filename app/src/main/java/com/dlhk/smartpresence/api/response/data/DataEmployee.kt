@@ -1,5 +1,8 @@
 package com.dlhk.smartpresence.api.response.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 data class DataEmployee(
     val age: Int,
     val bank: String,

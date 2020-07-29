@@ -7,28 +7,28 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dlhk.smartpresence.LocationLiveData
+import com.dlhk.smartpresence.api.response.ResponseGetEmployee
 import com.dlhk.smartpresence.api.response.ResponsePresence
 import com.dlhk.smartpresence.repositories.AttendanceRepo
+import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.Utility
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.parse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import java.io.File
 
 class PresenceViewModel(
-    val repo: AttendanceRepo,
+    val attendanceRepo: AttendanceRepo,
     val app : Application
 ) : AndroidViewModel(app){
 
     val presenceData : MutableLiveData<Resource<ResponsePresence>> = MutableLiveData()
-    lateinit var presenceResponse: Response<ResponsePresence>
+    val employeeData : MutableLiveData<Resource<ResponseGetEmployee>> = MutableLiveData()
+
     private val locationData = LocationLiveData(app)
 
     fun createPhotoFile(context: Context): File?{
@@ -47,10 +47,11 @@ class PresenceViewModel(
             val req_dateOFPresence = dateOfPresence.toRequestBody("text/plain".toMediaTypeOrNull());
             val req_coordinate = coordinate.toRequestBody("text/plain".toMediaTypeOrNull());
 
-            val response = repo.presence(employeeId, req_dateOFPresence, req_coordinate, image)
+            val response = attendanceRepo.presence(employeeId, req_dateOFPresence, req_coordinate, image)
             presenceData.postValue(handlePresenceResponse(response))
         }
     }
+
 
     fun getCurrentLocation() = locationData
 
@@ -61,6 +62,16 @@ class PresenceViewModel(
             }
         }
         return Resource.Error(response.message())
+    }
+
+    private fun handleGetEmployeeResponse(response: Response<ResponseGetEmployee>){
+        if(response.isSuccessful){
+            response.body()?.let { employeeResult ->
+                employeeData.postValue(Resource.Success(employeeResult))
+            }
+        }else{
+            employeeData.postValue(Resource.Error(response.message()))
+        }
     }
 
 }

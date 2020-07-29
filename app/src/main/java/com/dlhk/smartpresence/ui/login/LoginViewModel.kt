@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.dlhk.smartpresence.api.response.ResponseClaimUserData
 import com.dlhk.smartpresence.api.response.ResponseGetEmployee
 import com.dlhk.smartpresence.api.response.ResponseLogin
+import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.repositories.UserManagementRepo
 import com.dlhk.smartpresence.util.Resource
@@ -23,7 +24,6 @@ class LoginViewModel(
 ) : ViewModel() {
 
     val loginData: MutableLiveData<Resource<ResponseClaimUserData>> = MutableLiveData()
-    val employeeData : MutableLiveData<Resource<ResponseGetEmployee>> = MutableLiveData()
     lateinit var claimUserData: Response<ResponseClaimUserData>
 
     fun login(username: String, password: String, context: Context) {
@@ -53,14 +53,6 @@ class LoginViewModel(
                 saveSessionRegion(region)
                 saveSessionZone(zone)
             }
-        }
-    }
-
-    fun getEmployeePerRegion(zoneName: String, regionName: String){
-        viewModelScope.launch {
-            employeeData.postValue(Resource.Loading())
-            val getEmployeeResponse = employeeRepo.getEmployeePerRegion(zoneName, regionName)
-            handleGetEmployeeResponse(getEmployeeResponse)
         }
     }
 
@@ -95,16 +87,6 @@ class LoginViewModel(
             }
         }else{
             loginData.postValue(Resource.Error(response.message()))
-        }
-    }
-
-    private fun handleGetEmployeeResponse(response: Response<ResponseGetEmployee>){
-        if(response.isSuccessful){
-            response.body()?.let { employeeResult ->
-                employeeData.postValue(Resource.Success(employeeResult))
-            }
-        }else{
-            employeeData.postValue(Resource.Error(response.message()))
         }
     }
 }

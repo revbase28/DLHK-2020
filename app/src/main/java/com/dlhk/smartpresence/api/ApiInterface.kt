@@ -1,9 +1,6 @@
 package com.dlhk.smartpresence.api
 
-import com.dlhk.smartpresence.api.response.ResponseClaimUserData
-import com.dlhk.smartpresence.api.response.ResponseGetEmployee
-import com.dlhk.smartpresence.api.response.ResponseLogin
-import com.dlhk.smartpresence.api.response.ResponsePresence
+import com.dlhk.smartpresence.api.response.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -35,5 +32,15 @@ interface ApiInterface {
         @Part("employeeId") employeeId:Long,
         @Part("dateOfPresence") presenceDate: RequestBody,
         @Part("coordinate") coordinate: RequestBody,
-        @Part livePhoto: MultipartBody.Part ): Response<ResponsePresence>
+        @Part livePhoto: MultipartBody.Part
+    ): Response<ResponsePresence>
+
+    @FormUrlEncoded
+    @POST("leave")
+    suspend fun sendPermit(
+        @Field("dateOfLeave") dateOfLeave: String,
+        @Field("description") desc: String,
+        @Field("employeeId") employeeId: Long
+    ): Response<ResponsePermit>
+
 }

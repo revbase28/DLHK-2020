@@ -11,6 +11,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,11 +25,13 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AttendanceRepo
+import com.dlhk.smartpresence.repositories.EmployeeRepo
+import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.util.Constant.Companion.LOCATION_REQUEST
 import com.dlhk.smartpresence.util.Constant.Companion.REQUEST_IMAGE_CAPTURE
 import com.dlhk.smartpresence.util.Resource
+import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.Utility
-import id.zelory.compressor.Compressor
 import kotlinx.android.synthetic.main.activity_presence.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -42,16 +46,18 @@ class PresenceActivity : AppCompatActivity() {
     lateinit var photoPath : String
     lateinit var NowsDate : String
     lateinit var sendReadyPhotoFile : File
+    lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_presence)
 
-        val repo = AttendanceRepo()
-        val viewModelProviderFactory =
-            PresenceViewModelFactory(repo, application)
-        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(PresenceViewModel::class.java)
+        val attendanceRepo = AttendanceRepo()
+        val employeeRepo = EmployeeRepo()
+        sessionManager = SessionManager(this)
 
+        val viewModelProviderFactory = PresenceViewModelFactory(attendanceRepo,  application)
+        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(PresenceViewModel::class.java)
 
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -72,6 +78,18 @@ class PresenceActivity : AppCompatActivity() {
             employeeId = selectedItem.employeeId
         }
 
+        etName.addTextChangedListener(object : TextWatcher{
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                clearInput()
+            }
+
+        })
 
         btnBack.setOnClickListener {
             onBackPressed()
@@ -82,24 +100,30 @@ class PresenceActivity : AppCompatActivity() {
         }
 
         btnSubmit.setOnClickListener {
-            viewModel.sendPresence(employeeId, NowsDate, etCoordinate.text.toString(), sendReadyPhotoFile)
-            viewModel.presenceData.observe(this, Observer { response ->
-                when(response){
-                    is Resource.Success -> {
-                        response.data?.let {
-                            Toast.makeText(this, "Upload Success", Toast.LENGTH_LONG).show()
+            if(verifyInput()){
+                viewModel.sendPresence(employeeId, NowsDate, etCoordinate.text.toString(), sendReadyPhotoFile)
+                viewModel.presenceData.observe(this, Observer { response ->
+                    when(response){
+                        is Resource.Success -> {
+                            response.data?.let {
+                                Utility.dismissLoadingDialog()
+                                Toast.makeText(this, "Upload Success", Toast.LENGTH_LONG).show()
+                                etName.setText("")
+                                etCoordinate.setText("")
+                                dismissError()
+                            }
+                        }
+                        is Resource.Error -> {
+                            Utility.dismissLoadingDialog()
+                            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
+                        }
+                        is Resource.Loading -> {
+                            Utility.showLoadingDialog(supportFragmentManager, "Loading")
                         }
                     }
-                    is Resource.Error -> {
-                        Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
-                    }
-                    is Resource.Loading -> {
-                        Toast.makeText(this, "Loading", Toast.LENGTH_LONG).show()
-                    }
-                }
-            })
+                })
+            }
         }
-
     }
 
     private fun takePicture(){
@@ -171,11 +195,77 @@ class PresenceActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
 
+    private fun clearInput(){
+        etNik.setText("")
+        etWilayah.setText("")
+        etZone.setText("")
+        etBagian.setText("")
+    }
+
+    private fun verifyInput(): Boolean{
+        if(etName.text.isNullOrBlank()
+            || etNik.text.isNullOrBlank()
+            || etWilayah.text.isNullOrBlank()
+            || etZone.text.isNullOrBlank()
+            || etBagian.text.isNullOrBlank()
+            || etCoordinate.text.isNullOrBlank()){
+
+            if(etName.text.isNullOrBlank()){
+                textInputLayoutName.error = "Nama harus diisi"
+            }else{
+                textInputLayoutName.error = null
+            }
+
+            if(etCoordinate.text.isNullOrBlank()){
+                textInputLayoutCoordinate.error = "Isi koordinat dengan mengambil photo pegawai"
+            }else{
+                textInputLayoutCoordinate.error = null
+            }
+
+            if(etNik.text.isNullOrBlank()){
+                textInputLayoutNIK.error = "NIK harus diisi"
+            }else{
+                textInputLayoutNIK.error = null
+            }
+
+            if(etZone.text.isNullOrBlank()){
+                textInputLayoutZona.error = "Zona harus diisi"
+            }else{
+                textInputLayoutZona.error = null
+            }
+
+            if(etZone.text.isNullOrBlank()){
+                textInputLayoutBagian.error = "Bagian harus diisi"
+            }else{
+                textInputLayoutBagian.error = null
+            }
+
+            if(etWilayah.text.isNullOrBlank()){
+                textInputLayoutWilayah.error = "Wilayah harus diisi"
+            }else{
+                textInputLayoutWilayah.error = null
+            }
+
+            return false
+        }
+
+        return true
+    }
+
+    private fun dismissError(){
+        textInputLayoutName.error = null
+        textInputLayoutCoordinate.error = null
+        textInputLayoutNIK.error = null
+        textInputLayoutZona.error = null
+        textInputLayoutBagian.error = null
+        textInputLayoutWilayah.error = null
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
             imageViewFoto.setImageBitmap(viewModel.decodeFile(photoPath))
             startLocationUpdate()
-            NowsDate = Utility.getCurrentDate()
+            NowsDate = Utility.getCurrentDate("yyyy-MM-dd'T'HH:mm:ss")
             CoroutineScope(IO).launch {
                 sendReadyPhotoFile.also {
                     sendReadyPhotoFile = Utility.compressFile(this@PresenceActivity, it)
@@ -196,7 +286,10 @@ class PresenceActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
+        val i = Intent(this, MainMenuActivity::class.java).apply {
+            startActivity(this)
+            finish()
+        }
     }
 
     override fun onStart() {

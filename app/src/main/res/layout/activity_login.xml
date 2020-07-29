@@ -59,6 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="Password"
+            app:passwordToggleTint="@color/black"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:hintTextColor="@color/colorPrimary"

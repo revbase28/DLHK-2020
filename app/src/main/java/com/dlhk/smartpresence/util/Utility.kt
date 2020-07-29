@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.os.Environment
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentManager
 import com.dlhk.smartpresence.util.Constant.Companion.REQUEST_CHECK_SETTINGS
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -27,6 +28,8 @@ import java.util.*
 
 class Utility {
     companion object{
+
+        val loadingDialog = DelayedProgressDialog()
 
         @Throws(IOException::class)
         fun createPhotoFile(context: Context): File?{
@@ -49,8 +52,17 @@ class Utility {
             return null
         }
 
-        fun getCurrentDate(): String {
-            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        fun showLoadingDialog(fm: FragmentManager, TAG: String){
+            loadingDialog.show(fm, TAG)
+            loadingDialog.isCancelable = false
+        }
+
+        fun dismissLoadingDialog(){
+            loadingDialog.dismiss()
+        }
+
+        fun getCurrentDate(pattern: String): String {
+            val sdf = SimpleDateFormat(pattern)
             val currentDate = sdf.format(Calendar.getInstance().time)
 
             return currentDate

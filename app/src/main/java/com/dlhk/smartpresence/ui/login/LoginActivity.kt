@@ -14,6 +14,7 @@ import com.dlhk.smartpresence.repositories.UserManagementRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
+import com.dlhk.smartpresence.util.Utility
 import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.NullPointerException
 
@@ -52,59 +53,24 @@ class LoginActivity : AppCompatActivity() {
                                     it.data.RegionName
                                 )
 
-                                when(sessionManager.getSessionRole()){
-                                    "Kepala Zona" ->{
-                                        viewModel.getEmployeePerRegion(
-                                            sessionManager.getSessionZone()!!,
-                                            sessionManager.getSessionRegion()!!)
+                                Utility.dismissLoadingDialog()
 
-                                        viewModel.employeeData.observe(this, Observer { employeeResponse ->
-                                            when(employeeResponse){
-                                                is Resource.Success -> {
-                                                    employeeResponse.data.let {
-                                                        try{
-                                                            EmployeeSingleton.insertEmployeeData(it!!.data)
-                                                            Log.d("Employee Data", "${EmployeeSingleton.getEmployeeData()}")
-                                                        }catch (e: NullPointerException){
-                                                            Log.d("Employee Data", "Employee Data is Null")
-                                                        }
-                                                    }
-
-                                                    val intent = Intent(this, MainMenuActivity::class.java).apply {
-                                                        startActivity(this)
-                                                        finish()
-                                                    }
-                                                }
-
-                                                is Resource.Error -> {
-                                                    response.message?.let {
-                                                        Log.d("Error Employee Data", it)
-                                                        Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-                                                    }
-                                                }
-
-                                                is Resource.Loading -> {
-                                                    response.message?.let {
-                                                        Log.d("Error Employee Data", it)
-                                                        Toast.makeText(this, "Loading", Toast.LENGTH_SHORT).show()
-                                                    }
-                                                }
-
-                                            }
-                                        })
-                                    }
+                                val intent = Intent(this, MainMenuActivity::class.java).apply {
+                                    startActivity(this)
+                                    finish()
                                 }
                             }
                         }
 
                         is Resource.Error -> {
                             response.message?.let {
+                                Utility.dismissLoadingDialog()
                                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
                             }
                         }
 
                         is Resource.Loading -> {
-                                Toast.makeText(this, "Loading", Toast.LENGTH_SHORT).show()
+                                Utility.showLoadingDialog(supportFragmentManager, "Loading")
                         }
                     }
                 })
