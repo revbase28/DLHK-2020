@@ -53,11 +53,10 @@
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutName">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/nik"
+                android:id="@+id/etNik"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
+                android:enabled="false"
                 android:inputType="numberSigned"
                 android:textColor="@color/black" />
 
@@ -65,13 +64,14 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutName"
-            style="@style/EditTextInputBlueLayoutStyle"
+            style="@style/EditTextDropdownInputBlueLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:hint="Name"
+            app:endIconMode="none"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:hintTextColor="@color/colorPrimary"
@@ -79,7 +79,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView14">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
                 android:id="@+id/etName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -108,8 +108,7 @@
                 android:id="@+id/etWilayah"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
+                android:enabled="false"
                 android:inputType="text"
                 android:textColor="@color/black" />
 
@@ -136,6 +135,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
+                android:enabled="false"
                 android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -173,6 +173,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.hsalf.smileyrating.SmileyRating
+                    android:id="@+id/ratingDisiplin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -218,6 +219,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.hsalf.smileyrating.SmileyRating
+                    android:id="@+id/ratingKelengkapan"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -264,6 +266,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.hsalf.smileyrating.SmileyRating
+                    android:id="@+id/ratingKebersihanDrainase"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -309,6 +312,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.hsalf.smileyrating.SmileyRating
+                    android:id="@+id/ratingSedimen"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -354,6 +358,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.hsalf.smileyrating.SmileyRating
+                    android:id="@+id/ratingGulma"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"

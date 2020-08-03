@@ -1,24 +1,33 @@
 package com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment
 
+import android.app.Activity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.lifecycle.Observer
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.util.TypefaceManager
+import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
+import com.dlhk.smartpresence.api.response.data.DataGetPresence
+import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
+import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderViewModel
+import com.dlhk.smartpresence.util.*
+import com.dlhk.smartpresence.util.Constant.Companion.GARBAGE_COLLECTOR
+import com.hsalf.smileyrating.SmileyRating
+import kotlinx.android.synthetic.main.fragment_assesment_garbage_collector.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [GarbageCollectorAssesmentFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class GarbageCollectorAssesmentFragment : Fragment() {
+
+    lateinit var viewModel: AssesmentZoneLeaderViewModel
+    lateinit var activity : Activity
+    lateinit var sessionManager: SessionManager
+    var employeeDataList : ArrayList<DataGetPresence> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +44,173 @@ class GarbageCollectorAssesmentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val typefaceManager = activity?.let { TypefaceManager(it) }
+        val typefaceManager = TypefaceManager(activity)
+        viewModel = (activity as AssesmentZoneLeaderActivity).viewModel
+        sessionManager = SessionManager(activity as AssesmentZoneLeaderActivity)
+
+        if(employeeDataList.size == 0){
+            getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!,
+                GARBAGE_COLLECTOR
+            )
+        }else{
+            val discipline = Utility.getRatingValue(ratingKetepatanWaktu.selectedSmiley)
+            val calculation = Utility.getRatingValue(ratingPenghitunganSampah.selectedSmiley)
+            val separation = Utility.getRatingValue(ratingPemisahanSampah.selectedSmiley)
+            val tps = Utility.getRatingValue(ratingPembuangan.selectedSmiley)
+
+        }
+
+        var presenceId: Long = 0
+        etName.threshold = 1
+        etName.setOnItemClickListener { adapterView, view, position, id ->
+            val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
+            etNik.setText(selectedItem.employeeNumber)
+            etWilayah.setText(selectedItem.regionName)
+            etZone.setText(selectedItem.zoneName)
+            presenceId = selectedItem.presenceId
+        }
+
+        etName.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {}
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                clearInput()
+            }
+        })
+
+        send.setOnClickListener {
+            if(employeeDataList.size == 0){
+                Utility.showWarningDialog("Anda belum mengabsen", "Anda hanya bisa menilai pegawai yang sudah terabsen", activity)
+            }else{
+                val discipline = Utility.getRatingValue(ratingKetepatanWaktu.selectedSmiley)
+                val calculation = Utility.getRatingValue(ratingPenghitunganSampah.selectedSmiley)
+                val separation = Utility.getRatingValue(ratingPemisahanSampah.selectedSmiley)
+                val tps = Utility.getRatingValue(ratingPembuangan.selectedSmiley)
+
+                if(verifyInput(discipline, calculation, separation, tps)){
+                    viewModel.sendGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, Integer.parseInt(etSampahOrganik.text.toString()), Integer.parseInt(etSampahAnorganik.text.toString()))
+                    viewModel.garbageCollectorAssessmentData.observe(viewLifecycleOwner, Observer { response ->
+                        when(response){
+                            is Resource.Success ->{
+                                clearInput()
+                                etName.setText("")
+                                Utility.dismissLoadingDialog()
+                                Utility.showSuccessDialog("Data berhasil disimpan", "Pertahankan kualitas kerja dan selalu jaga kesehatan", activity)
+                            }
+                            is Resource.Error ->{
+                                Utility.dismissLoadingDialog()
+                                Toast.makeText(activity, "Error Posting Data", Toast.LENGTH_LONG).show()
+                                Log.e("Error Garbage Collector", response.message.toString())
+                            }
+                            is Resource.Loading ->{
+                                Utility.showLoadingDialog(childFragmentManager, "Loading")
+                            }
+                        }
+                    })
+                }else{
+                    Utility.showWarningDialog("Data belum lengkap", "Pastikan Data sudah lengkap sebelum dikirim", activity)
+                }
+            }
+        }
+    }
+
+    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
+        Utility.showLoadingDialog(childFragmentManager, "Loading")
+        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
+        viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
+            when(response){
+                is Resource.Success ->{
+                    response.data.let {
+                        if(it?.data != null){
+                            employeeDataList.clear()
+                            employeeDataList.addAll(it.data)
+                            etName.setAdapter(AutoCompleteAssesmentAdapter(activity, R.layout.layout_auto_complete_text_view, employeeDataList))
+                        }
+                    }
+                    Utility.dismissLoadingDialog()
+                }
+                is Resource.Error ->{
+                    Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
+                    Utility.dismissLoadingDialog()
+                    (activity as AssesmentZoneLeaderActivity).onBackPressed()
+                }
+                is Resource.Loading ->{
+                }
+            }
+        })
+    }
+
+    private fun clearInput(){
+        etNik.setText("")
+        etWilayah.setText("")
+        etZone.setText("")
+        etSampahAnorganik.setText("")
+        etSampahOrganik.setText("")
+        ratingKetepatanWaktu.setRating(SmileyRating.Type.NONE)
+        ratingPembuangan.setRating(SmileyRating.Type.NONE)
+        ratingPenghitunganSampah.setRating(SmileyRating.Type.NONE)
+        ratingPemisahanSampah.setRating(SmileyRating.Type.NONE)
+    }
+
+    private fun verifyInput(discipline: Int,
+                            calculation: Int,
+                            separation: Int,
+                            tps: Int): Boolean {
+        if(etName.text.isNullOrBlank()
+            || etNik.text.isNullOrBlank()
+            || etWilayah.text.isNullOrBlank()
+            || etZone.text.isNullOrBlank()
+            || calculation == 0
+            || separation == 0
+            || discipline == 0
+            || tps == 0){
+
+            if(etName.text.isNullOrBlank()){
+                textInputLayoutName.error = "Nama harus diisi"
+            }else{
+                textInputLayoutName.error = null
+            }
+
+            if(etNik.text.isNullOrBlank()){
+                textInputLayoutNIK.error = "NIK harus diisi"
+            }else{
+                textInputLayoutNIK.error = null
+            }
+
+            if(etZone.text.isNullOrBlank()){
+                textInputLayoutZona.error = "Zona harus diisi"
+            }else{
+                textInputLayoutZona.error = null
+            }
+
+            if(etWilayah.text.isNullOrBlank()){
+                textInputLayoutWilayah.error = "Wilayah harus diisi"
+            }else{
+                textInputLayoutWilayah.error = null
+            }
+
+            if(etSampahOrganik.text.isNullOrBlank()){
+                textInputLayoutSampahOrganik.error = "Volume Oganik harus diisi"
+            }else{
+                textInputLayoutSampahOrganik.error = null
+            }
+
+            if(etSampahAnorganik.text.isNullOrBlank()){
+                textInputLayoutSampahAnorganik.error = "Volume Anorganik harus diisi"
+            }else{
+                textInputLayoutSampahAnorganik.error = null
+            }
+
+            return false
+        }
+
+        return true
+    }
+
+    override fun onAttach(activity: Activity) {
+        super.onAttach(activity)
+        this.activity = activity
     }
 }

@@ -1,5 +1,6 @@
 package com.dlhk.smartpresence.ui.smart_presence.update_permission
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -14,6 +15,7 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AttendanceRepo
+import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.Utility
 import kotlinx.android.synthetic.main.activity_update_permission.*
@@ -68,7 +70,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
                     when(response){
                         is Resource.Success ->{
                             Utility.dismissLoadingDialog()
-                            Toast.makeText(this, "Upload Success", Toast.LENGTH_SHORT).show()
+                            Utility.showSuccessDialog("Izin Terkirim", "Izin anda telah diajukan kepada atasan", this)
                             etName.setText("")
                         }
 
@@ -140,5 +142,10 @@ class UpdatePermissionActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
+
+        val intent = Intent(this, MainMenuActivity::class.java).apply {
+            startActivity(this)
+            finish()
+        }
     }
 }

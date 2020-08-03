@@ -81,8 +81,17 @@ dependencies {
     //Compressor
     implementation 'id.zelory:compressor:3.0.0'
 
+    //Material Dialog
+    implementation 'com.afollestad.material-dialogs:core:3.3.0'
+    implementation 'com.afollestad.material-dialogs:lifecycle:3.3.0'
+
+    //Spin Kit Loading
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
+
+    //Smiley Rating
     implementation 'com.github.sujithkanna:smileyrating:2.0.0'
+
+    //Glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 

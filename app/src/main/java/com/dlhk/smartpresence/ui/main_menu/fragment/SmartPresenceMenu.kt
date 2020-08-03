@@ -2,6 +2,11 @@ package com.dlhk.smartpresence.ui.main_menu.fragment
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +18,7 @@ import com.dlhk.smartpresence.EmployeeSingleton
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.ui.main_menu.MainMenuViewModel
+import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.AssessmentZoneCoordinatorActivity
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
 import com.dlhk.smartpresence.ui.smart_presence.presence.PresenceActivity
 import com.dlhk.smartpresence.ui.smart_presence.update_permission.UpdatePermissionActivity
@@ -23,6 +29,8 @@ import com.dlhk.smartpresence.util.Utility
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.norbsoft.typefacehelper.TypefaceHelper
 import kotlinx.android.synthetic.main.fragment_menu_smart_presence.*
+import kotlinx.android.synthetic.main.fragment_menu_smart_presence.view.*
+
 
 class SmartPresenceMenu: BottomSheetDialogFragment() {
 
@@ -47,21 +55,28 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         val typefaceManager = activity.let { TypefaceManager(it) }
         setFragmentTypeface(typefaceManager)
 
+        determineAccess(sessionManager.getSessionRole()!!, view)
+
         cardAbsen.setOnClickListener {
+            Utility.showLoadingDialog(childFragmentManager, "Loading")
             getEmployeeDataThenStartActivity(PresenceActivity::class.java)
         }
 
         cardAssesment.setOnClickListener {
-            startActivityTo(AssesmentZoneLeaderActivity::class.java)
+            when(sessionManager.getSessionRole()){
+                "Kepala Zona" -> startActivityTo(AssesmentZoneLeaderActivity::class.java)
+                "Koor Wilayah" -> startActivityTo(AssessmentZoneCoordinatorActivity::class.java)
+            }
         }
 
         cardPermission.setOnClickListener {
+            Utility.showLoadingDialog(childFragmentManager, "Loading")
             getEmployeeDataThenStartActivity(UpdatePermissionActivity::class.java)
         }
     }
 
     private fun startActivityTo(cls: Class<*>){
-        val intent = Intent(activity?.applicationContext, cls)
+        val intent = Intent(activity.applicationContext, cls)
         intent.apply {
             startActivity(this)
         }
@@ -89,12 +104,54 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
 
                 is Resource.Loading -> {
                     employeeResponse.message?.let {
-                        Utility.showLoadingDialog((activity as MainMenuActivity).supportFragmentManager, "Loading")
+                        Utility.showLoadingDialog(childFragmentManager, "Loading")
+                        Toast.makeText(activity, "Loading", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         })
     }
+
+    private fun determineAccess(role: String, view: View){
+        when(role){
+            "Kepala Zona"-> {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                    view.cardLiveSupervisiChild.background.colorFilter = BlendModeColorFilter(
+                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
+                }else{
+                    view.cardLiveSupervisiChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
+                }
+                cardLiveSupervisi.isEnabled = false
+                cardLiveSupervisi.isClickable = false
+            }
+            "Koor Wilayah" -> {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                    view.cardLiveSupervisiChild.background.colorFilter = BlendModeColorFilter(
+                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
+                    view.cardAbsenChild.background.colorFilter = BlendModeColorFilter(
+                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
+                }else{
+                    view.cardLiveSupervisiChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
+                    view.cardAbsenChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
+                }
+                cardLiveSupervisi.isEnabled = false
+                cardLiveSupervisi.isClickable = false
+                cardAbsen.isEnabled = false
+                cardAbsen.isClickable = false
+            }
+            "Admin" -> {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                    view.cardAbsenChild.background.colorFilter = BlendModeColorFilter(
+                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
+                }else{
+                    view.cardAbsenChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
+                }
+                cardAbsen.isEnabled = false
+                cardAbsen.isClickable = false
+            }
+        }
+    }
+
 
     private fun setFragmentTypeface(typefaceManager: TypefaceManager?){
         TypefaceHelper.typeface(textView7, typefaceManager?.segoe_ui)

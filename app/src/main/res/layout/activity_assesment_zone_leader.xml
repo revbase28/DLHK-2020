@@ -76,6 +76,7 @@
                     android:layout_marginTop="16dp"
                     android:background="@android:color/white"
                     android:gravity="center_horizontal|center_vertical"
+                    android:orientation="vertical"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"

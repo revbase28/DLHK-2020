@@ -4,8 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.dlhk.smartpresence.R
+import com.dlhk.smartpresence.repositories.AssessmentRepo
+import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.DrainageAssesmentFragment
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.GarbageCollectorAssesmentFragment
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.SweeperAssesmentFragment
@@ -14,6 +17,10 @@ import com.dlhk.smartpresence.util.TypefaceManager
 import kotlinx.android.synthetic.main.activity_assesment_zone_leader.*
 
 class AssesmentZoneLeaderActivity : AppCompatActivity() {
+
+    lateinit var viewModel: AssesmentZoneLeaderViewModel
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_assesment_zone_leader)
@@ -21,6 +28,11 @@ class AssesmentZoneLeaderActivity : AppCompatActivity() {
         TypefaceManager(this)
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
+
+        val employeeRepo = EmployeeRepo()
+        val assessmentRepo = AssessmentRepo()
+        val viewModelFactory = AssessmentZoneLeaderViewModelFactory(employeeRepo, assessmentRepo)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(AssesmentZoneLeaderViewModel::class.java)
 
         btnBack.setOnClickListener {
             onBackPressed()

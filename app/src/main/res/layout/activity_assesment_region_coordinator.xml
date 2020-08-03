@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.smart_presence.assesment_region_coordinator.AssesmentZoneCoordinatorActivity">
+    android:background="@android:color/white"
+    tools:context=".ui.smart_presence.assesment_region_coordinator.AssessmentZoneCoordinatorActivity">
 
     <ImageButton
         android:id="@+id/btnBack"
@@ -34,20 +35,20 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardDrainage"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:backgroundTint="@color/colorPrimary"
         app:cardCornerRadius="5dp"
         app:cardElevation="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/cardSweeper"
         app:layout_constraintEnd_toStartOf="@+id/cardSweeper"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView12">
+        app:layout_constraintTop_toTopOf="@+id/cardSweeper">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/imageView11"
@@ -65,10 +66,11 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginTop="16dp"
                 android:background="@android:color/white"
                 android:gravity="center_horizontal|center_vertical"
+                android:orientation="vertical"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"

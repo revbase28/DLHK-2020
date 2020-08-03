@@ -26,6 +26,18 @@ interface ApiInterface {
         @Path(value="regionName", encoded = true) regionName: String
     ): Response<ResponseGetEmployee>
 
+    @GET("employee/zone/{regionName}")
+    suspend fun getZoneLeaderPerRegion(
+        @Path(value="regionName", encoded = true) regionName: String
+    ): Response<ResponseGetEmployee>
+
+    @GET("presence/{zoneName}/{regionName}/{role}")
+    suspend fun getPresenceDataPerRegionAndRole(
+        @Path(value="zoneName", encoded = true) zoneName: String,
+        @Path(value="regionName", encoded = true) regionName: String,
+        @Path(value="role", encoded = true) role: String
+    ): Response<ResponseGetPresence>
+
     @Multipart
     @POST("presence")
     suspend fun sendPresence(
@@ -42,5 +54,40 @@ interface ApiInterface {
         @Field("description") desc: String,
         @Field("employeeId") employeeId: Long
     ): Response<ResponsePermit>
+
+    @FormUrlEncoded
+    @POST("drainage")
+    suspend fun sendDrainageAssessment(
+        @Field("presenceId") presenceId: Long,
+        @Field("cleanliness") cleanliness: Int,
+        @Field("completeness") completeness: Int,
+        @Field("dicipline") discipline: Int,
+        @Field("sediment") sediment: Int,
+        @Field("weed") weed: Int
+    ): Response<ResponsePostDrainageAssessment>
+
+    @FormUrlEncoded
+    @POST("sweeper")
+    suspend fun sendSweeperAssessment(
+        @Field("presenceId") presenceId: Long,
+        @Field("road") road: Int,
+        @Field("completeness") completeness: Int,
+        @Field("dicipline") discipline: Int,
+        @Field("sidewalk") sidewalk: Int,
+        @Field("waterRope") waterRope: Int,
+        @Field("roadMedian") roadMedian: Int
+    ): Response<ResponsePostSweeperAssessment>
+
+    @FormUrlEncoded
+    @POST("garbage")
+    suspend fun sendGarbageCollectorAssessment(
+        @Field("presenceId") presenceId: Long,
+        @Field("dicipline") discipline: Int,
+        @Field("calculation") calculation: Int,
+        @Field("separation") separation: Int,
+        @Field("TPS") tps: Int,
+        @Field("volumeOfOrganic") organic: Int,
+        @Field("volumeOfAnorganic") anorganic: Int
+    ): Response<ResponsePostAssessmentGarbageCollector>
 
 }

@@ -49,8 +49,8 @@ class LoginActivity : AppCompatActivity() {
                                     sessionManager,
                                     it.data.Name,
                                     it.data.RoleName,
-                                    it.data.ZoneName,
-                                    it.data.RegionName
+                                    it.data.ZoneName ?: "",
+                                    it.data.RegionName ?: ""
                                 )
 
                                 Utility.dismissLoadingDialog()

@@ -1,24 +1,46 @@
 package com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.lifecycle.Observer
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.util.TypefaceManager
+import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
+import com.dlhk.smartpresence.api.response.data.DataGetPresence
+import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
+import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderViewModel
+import com.dlhk.smartpresence.util.*
+import com.dlhk.smartpresence.util.Constant.Companion.SWEEPER
+import com.hsalf.smileyrating.SmileyRating
+import kotlinx.android.synthetic.main.fragment_assessment_drainage.*
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.*
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etName
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etNik
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etWilayah
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etZone
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.ratingDisiplin
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.ratingKelengkapan
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.send
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.textInputLayoutNIK
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.textInputLayoutName
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.textInputLayoutWilayah
+import kotlinx.android.synthetic.main.fragment_assessment_sweeper.textInputLayoutZona
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SweeperAssesmentFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SweeperAssesmentFragment : Fragment() {
+
+    lateinit var viewModel: AssesmentZoneLeaderViewModel
+    lateinit var activity : Activity
+    lateinit var sessionManager: SessionManager
+    var employeeDataList : ArrayList<DataGetPresence> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +57,160 @@ class SweeperAssesmentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val typefaceManager = activity?.let { TypefaceManager(it) }
+        val typefaceManager = TypefaceManager(activity)
+        viewModel = (activity as AssesmentZoneLeaderActivity).viewModel
+        sessionManager = SessionManager(activity as AssesmentZoneLeaderActivity)
+        if(employeeDataList.size == 0){
+            getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!,
+                SWEEPER
+            )
+        }
+
+        var presenceId : Long = 0
+        etName.threshold = 1
+        etName.setOnItemClickListener { adapterView, view, position, id ->
+            val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
+            etNik.setText(selectedItem.employeeNumber)
+            etWilayah.setText(selectedItem.regionName)
+            etZone.setText(selectedItem.zoneName)
+            presenceId = selectedItem.presenceId
+        }
+
+        etName.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {}
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                clearInput()
+            }
+        })
+
+        send.setOnClickListener {
+            if(employeeDataList.size == 0){
+                Utility.showWarningDialog("Anda belum mengabsen", "Anda hanya bisa menilai pegawai yang sudah terabsen", activity)
+            }else{
+                val road = Utility.getRatingValue(ratingBadanJalan.selectedSmiley)
+                val completeness = Utility.getRatingValue(ratingKelengkapan.selectedSmiley)
+                val discipline = Utility.getRatingValue(ratingDisiplin.selectedSmiley)
+                val sidewalk = Utility.getRatingValue(ratingTrotoar.selectedSmiley)
+                val waterRope = Utility.getRatingValue(ratingTaliAir.selectedSmiley)
+                val roadMedian = Utility.getRatingValue(ratingMedianJalan.selectedSmiley)
+
+                if(verifyInput(road, completeness, discipline, sidewalk, waterRope, roadMedian)){
+                    viewModel.sendSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian)
+                    viewModel.sweeperAssessmentData.observe(viewLifecycleOwner, Observer { response ->
+                        when(response){
+                            is Resource.Success -> {
+                                clearInput()
+                                etName.setText("")
+                                Utility.dismissLoadingDialog()
+                                Utility.showSuccessDialog("Data berhasil disimpan", "Pertahankan kualitas kerja dan selalu jaga kesehatan", activity)
+                            }
+                            is Resource.Error -> {
+                                Utility.dismissLoadingDialog()
+                                Toast.makeText(activity, "Error Posting Data", Toast.LENGTH_LONG).show()
+                                Log.e("Error Sweeper", response.message.toString())
+                            }
+                            is Resource.Loading -> {
+                                Utility.showLoadingDialog(childFragmentManager, "Loading")
+                            }
+                        }
+                    })
+                }else{
+                    Utility.showWarningDialog("Data belum lengkap", "Pastikan Data sudah lengkap sebelum dikirim", activity)
+                }
+            }
+        }
+    }
+
+    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
+        Utility.showLoadingDialog(childFragmentManager, "Loading")
+        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
+        viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
+            when(response){
+                is Resource.Success ->{
+                    response.data.let {
+                        if(it?.data != null){
+                            employeeDataList.clear()
+                            employeeDataList.addAll(it.data)
+                            etName.setAdapter(AutoCompleteAssesmentAdapter(activity, R.layout.layout_auto_complete_text_view, employeeDataList))
+                        }
+                    }
+                    Utility.dismissLoadingDialog()
+                }
+                is Resource.Error ->{
+                    Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
+                    Utility.dismissLoadingDialog()
+                    (activity as AssesmentZoneLeaderActivity).onBackPressed()
+                }
+                is Resource.Loading ->{
+                }
+            }
+        })
+    }
+
+    private fun clearInput(){
+        etNik.setText("")
+        etWilayah.setText("")
+        etZone.setText("")
+        ratingBadanJalan.setRating(SmileyRating.Type.NONE)
+        ratingKelengkapan.setRating(SmileyRating.Type.NONE)
+        ratingDisiplin.setRating(SmileyRating.Type.NONE)
+        ratingTrotoar.setRating(SmileyRating.Type.NONE)
+        ratingTaliAir.setRating(SmileyRating.Type.NONE)
+        ratingMedianJalan.setRating(SmileyRating.Type.NONE)
+    }
+
+    private fun verifyInput(road: Int,
+                            completeness: Int,
+                            discipline: Int,
+                            sidewalk: Int,
+                            waterRope: Int,
+                            roadMedian: Int): Boolean{
+
+        if(etName.text.isNullOrBlank()
+            || etNik.text.isNullOrBlank()
+            || etWilayah.text.isNullOrBlank()
+            || etZone.text.isNullOrBlank()
+            || road == 0
+            || completeness == 0
+            || discipline == 0
+            || sidewalk == 0
+            || waterRope == 0
+            || roadMedian == 0){
+
+            if(etName.text.isNullOrBlank()){
+                textInputLayoutName.error = "Nama harus diisi"
+            }else{
+                textInputLayoutName.error = null
+            }
+
+            if(etNik.text.isNullOrBlank()){
+                textInputLayoutNIK.error = "NIK harus diisi"
+            }else{
+                textInputLayoutNIK.error = null
+            }
+
+            if(etZone.text.isNullOrBlank()){
+                textInputLayoutZona.error = "Zona harus diisi"
+            }else{
+                textInputLayoutZona.error = null
+            }
+
+            if(etWilayah.text.isNullOrBlank()){
+                textInputLayoutWilayah.error = "Wilayah harus diisi"
+            }else{
+                textInputLayoutWilayah.error = null
+            }
+
+            return false
+        }
+        return true
+    }
+
+    override fun onAttach(activity: Activity) {
+        super.onAttach(activity)
+        this.activity = activity
     }
 }

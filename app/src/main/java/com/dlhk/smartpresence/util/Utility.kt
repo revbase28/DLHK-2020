@@ -7,14 +7,20 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentManager
-import com.dlhk.smartpresence.util.Constant.Companion.REQUEST_CHECK_SETTINGS
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.dlhk.smartpresence.R
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.material.button.MaterialButton
+import com.hsalf.smilerating.SmileRating
+import com.hsalf.smileyrating.SmileyRating
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -72,6 +78,49 @@ class Utility {
             return CoroutineScope(IO).async {
                 Compressor.compress(context, file)
             }.await()
+        }
+
+        fun showSuccessDialog(mainText: String, subText: String, context: Context){
+            val dialog = MaterialDialog(context)
+                .noAutoDismiss()
+                .customView(R.layout.dialog_success)
+                .cornerRadius(15F)
+
+            dialog.findViewById<TextView>(R.id.mainText).setText(mainText)
+            dialog.findViewById<TextView>(R.id.subText).setText(subText)
+            dialog.findViewById<MaterialButton>(R.id.btn).setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        }
+
+        fun showWarningDialog(mainText: String, subText: String, context: Context){
+            val dialog = MaterialDialog(context)
+                .noAutoDismiss()
+                .customView(R.layout.dialog_warning)
+                .cornerRadius(15F)
+
+            dialog.findViewById<TextView>(R.id.mainText).setText(mainText)
+            dialog.findViewById<TextView>(R.id.subText).setText(subText)
+            dialog.findViewById<MaterialButton>(R.id.btn).setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        }
+
+        fun getRatingValue(type: SmileyRating.Type ): Int{
+            return when(type){
+                SmileyRating.Type.GREAT -> 100
+                SmileyRating.Type.GOOD -> 80
+                SmileyRating.Type.OKAY -> 60
+                SmileyRating.Type.BAD -> 40
+                SmileyRating.Type.TERRIBLE -> 20
+                else ->{
+                    0
+                }
+            }
         }
     }
 }

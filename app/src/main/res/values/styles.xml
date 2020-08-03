@@ -31,4 +31,16 @@
         <item name="hintTextAppearance">@color/green</item>
     </style>
 
+    <style name="EditTextDropdownInputBlueLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">@color/colorPrimary</item>
+        <item name="boxStrokeWidth">0.5dp</item>
+        <item name="hintTextAppearance">@color/colorPrimary</item>
+    </style>
+
+    <style name="EditTextDropdownInputOrangeLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">@color/orange</item>
+        <item name="boxStrokeWidth">0.5dp</item>
+        <item name="hintTextAppearance">@color/orange</item>
+    </style>
+
 </resources>
