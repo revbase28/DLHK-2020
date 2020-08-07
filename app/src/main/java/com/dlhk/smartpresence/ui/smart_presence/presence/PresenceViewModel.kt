@@ -23,6 +23,7 @@ import java.io.File
 
 class PresenceViewModel(
     val attendanceRepo: AttendanceRepo,
+    val employeeRepo: EmployeeRepo,
     val app : Application
 ) : AndroidViewModel(app){
 
@@ -62,6 +63,22 @@ class PresenceViewModel(
             }
         }
         return Resource.Error(response.message())
+    }
+
+    fun getEmployeePerRegion(zoneName: String, regionName: String){
+        viewModelScope.launch {
+            employeeData.postValue(Resource.Loading())
+            val getEmployeeResponse = employeeRepo.getEmployeePerRegion(zoneName, regionName)
+            handleGetEmployeeResponse(getEmployeeResponse)
+        }
+    }
+
+    fun getZoneLeaderPerRegion(regionName: String){
+        viewModelScope.launch {
+            employeeData.postValue(Resource.Loading())
+            val response = employeeRepo.getZoneLeaderPerRegion(regionName)
+            handleGetEmployeeResponse(response)
+        }
     }
 
     private fun handleGetEmployeeResponse(response: Response<ResponseGetEmployee>){

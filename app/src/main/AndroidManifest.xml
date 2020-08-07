@@ -29,7 +29,7 @@
         <activity android:name=".ui.smart_presence.field_report.FieldReportActivity" />
         <activity android:name=".ui.inventory.submit_equipment.SubmitEquipmentActivity" />
         <activity android:name=".ui.smart_presence.update_permission.UpdatePermissionActivity" />
-        <activity android:name=".ui.smart_presence.assesment_region_coordinator.AssessmentZoneCoordinatorActivity" />
+        <activity android:name=".ui.smart_presence.assesment_region_coordinator.AssessmentRegionCoordinatorActivity" />
         <activity android:name=".ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity" />
         <activity android:name=".ui.main_menu.MainMenuActivity" />
         <activity android:name=".ui.smart_presence.presence.PresenceActivity" />

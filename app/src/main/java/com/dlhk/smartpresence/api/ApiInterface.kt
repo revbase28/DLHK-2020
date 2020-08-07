@@ -5,7 +5,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
-import java.io.File
 
 interface ApiInterface {
 
@@ -38,6 +37,11 @@ interface ApiInterface {
         @Path(value="role", encoded = true) role: String
     ): Response<ResponseGetPresence>
 
+    @GET("presence/{regionName}/headzone")
+    suspend fun getPresenceDataHeadOfZonePerRegion(
+        @Path(value="regionName", encoded = true) regionName: String
+    ): Response<ResponseGetPresence>
+
     @Multipart
     @POST("presence")
     suspend fun sendPresence(
@@ -51,8 +55,9 @@ interface ApiInterface {
     @POST("leave")
     suspend fun sendPermit(
         @Field("dateOfLeave") dateOfLeave: String,
-        @Field("description") desc: String,
-        @Field("employeeId") employeeId: Long
+        @Field("description") desc: String = "",
+        @Field("employeeId") employeeId: Long,
+        @Field("leaveStatus") leaveStatus: String
     ): Response<ResponsePermit>
 
     @FormUrlEncoded
@@ -88,6 +93,20 @@ interface ApiInterface {
         @Field("TPS") tps: Int,
         @Field("volumeOfOrganic") organic: Int,
         @Field("volumeOfAnorganic") anorganic: Int
-    ): Response<ResponsePostAssessmentGarbageCollector>
+    ): Response<ResponsePostGarbageCollectorAssessment>
+
+    @FormUrlEncoded
+    @POST("headzone")
+    suspend fun sendHeadOfZoneAssessment(
+        @Field("presenceId") presenceId: Long,
+        @Field("cleanlinessOfZone") cleanliness: Int,
+        @Field("completenessOfTeam") completeness: Int,
+        @Field("dataOfGarbage") dataOfGarbage: Int,
+        @Field("DiciplinePresence") disciplinePresence: Int,
+        @Field("firstSession") reportI: Int,
+        @Field("secondSession") reportII: Int,
+        @Field("thirdSession") reportIII: Int,
+        @Field("typeZone") typeZone: String
+    ): Response<ResponsePostZoneHeadAssessment>
 
 }

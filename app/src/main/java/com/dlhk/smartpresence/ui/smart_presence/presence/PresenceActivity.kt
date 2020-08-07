@@ -1,6 +1,7 @@
 package com.dlhk.smartpresence.ui.smart_presence.presence
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -14,21 +15,25 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dlhk.smartpresence.EmployeeSingleton
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteZoneLeaderAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AttendanceRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.util.Constant.Companion.LOCATION_REQUEST
 import com.dlhk.smartpresence.util.Constant.Companion.REQUEST_IMAGE_CAPTURE
+import com.dlhk.smartpresence.util.DelayedProgressDialog
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.Utility
@@ -47,7 +52,9 @@ class PresenceActivity : AppCompatActivity() {
     lateinit var NowsDate : String
     lateinit var sendReadyPhotoFile : File
     lateinit var sessionManager: SessionManager
+    lateinit var employeeData: ArrayList<DataEmployee>
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_presence)
@@ -56,40 +63,56 @@ class PresenceActivity : AppCompatActivity() {
         val employeeRepo = EmployeeRepo()
         sessionManager = SessionManager(this)
 
-        val viewModelProviderFactory = PresenceViewModelFactory(attendanceRepo,  application)
+        val viewModelProviderFactory = PresenceViewModelFactory(attendanceRepo, employeeRepo, application)
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(PresenceViewModel::class.java)
+
+        // Get rid of etWilayah in case the active role is region coordinator
+        if(sessionManager.getSessionRole() == "Koor Wilayah") {
+            etWilayah.visibility = View.GONE
+            textInputLayoutWilayah.visibility = View.GONE
+        }
 
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             showGPSDisabledAlertToUser()
         }
 
+
+        Utility.showLoadingDialog(supportFragmentManager, "Get EM Presence Loading")
+        getEmployeeFromApi()
+
         var employeeId : Long = 0
-        val employeeData = EmployeeSingleton.getEmployeeData()
-        val autoCompleteAdapter = AutoCompleteAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
-        etName.threshold = 1
-        etName.setAdapter(autoCompleteAdapter)
-        etName.setOnItemClickListener { adapterView, view, position, id ->
-            val selectedItem = adapterView.getItemAtPosition(position) as DataEmployee
-            etNik.setText(selectedItem.employeeNumber)
-            etWilayah.setText(selectedItem.region)
-            etZone.setText(selectedItem.zone)
-            etBagian.setText(selectedItem.role)
-            employeeId = selectedItem.employeeId
+        employeeData = EmployeeSingleton.getEmployeeData()
+        etName.apply {
+            threshold = 0
+
+            setOnItemClickListener { adapterView, view, position, id ->
+                val selectedItem = adapterView.getItemAtPosition(position) as DataEmployee
+                etNik.setText(selectedItem.employeeNumber)
+                if(sessionManager.getSessionRole() == "Kepala Zona") etWilayah.setText(selectedItem.region)
+                etZone.setText(selectedItem.zone)
+                etBagian.setText(selectedItem.role)
+                employeeId = selectedItem.employeeId
+            }
+
+            addTextChangedListener(object : TextWatcher{
+                override fun afterTextChanged(p0: Editable?) {
+                }
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    clearInput()
+                }
+
+            })
+
+            setOnTouchListener { view, motionEvent ->
+                etName.showDropDown()
+                false
+            }
         }
-
-        etName.addTextChangedListener(object : TextWatcher{
-            override fun afterTextChanged(p0: Editable?) {
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                clearInput()
-            }
-
-        })
 
         btnBack.setOnClickListener {
             onBackPressed()
@@ -99,26 +122,37 @@ class PresenceActivity : AppCompatActivity() {
             takePicture()
         }
 
+        var clicked = 1
+        var loading = 1
         btnSubmit.setOnClickListener {
-            if(verifyInput()){
+            if(viewModel.presenceData.value != null){
+                viewModel.presenceData.value = null
+            }
+
+            if(verifyInput(sessionManager.getSessionRole()!!)){
+                Utility.showLoadingDialog(supportFragmentManager, "Loading Presence")
                 viewModel.sendPresence(employeeId, NowsDate, etCoordinate.text.toString(), sendReadyPhotoFile)
                 viewModel.presenceData.observe(this, Observer { response ->
                     when(response){
                         is Resource.Success -> {
                             response.data?.let {
-                                Utility.dismissLoadingDialog()
                                 Toast.makeText(this, "Upload Success", Toast.LENGTH_LONG).show()
                                 etName.setText("")
                                 etCoordinate.setText("")
+                                imageViewFoto.setImageDrawable(resources.getDrawable(R.drawable.placeholder_camera_green, null))
                                 dismissError()
+                                getEmployeeFromApi()
+                                clicked++
+                                Log.d("Value After ${clicked}", viewModel.presenceData.value.toString())
                             }
+                            Utility.dismissLoadingDialog()
                         }
                         is Resource.Error -> {
                             Utility.dismissLoadingDialog()
                             Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
                         }
                         is Resource.Loading -> {
-                            Utility.showLoadingDialog(supportFragmentManager, "Loading")
+                            //
                         }
                     }
                 })
@@ -202,54 +236,135 @@ class PresenceActivity : AppCompatActivity() {
         etBagian.setText("")
     }
 
-    private fun verifyInput(): Boolean{
-        if(etName.text.isNullOrBlank()
-            || etNik.text.isNullOrBlank()
-            || etWilayah.text.isNullOrBlank()
-            || etZone.text.isNullOrBlank()
-            || etBagian.text.isNullOrBlank()
-            || etCoordinate.text.isNullOrBlank()){
+    private fun verifyInput(role: String): Boolean{
 
-            if(etName.text.isNullOrBlank()){
-                textInputLayoutName.error = "Nama harus diisi"
-            }else{
-                textInputLayoutName.error = null
+        when(role){
+            "Kepala Zona" -> {
+                if(etName.text.isNullOrBlank()
+                    || etNik.text.isNullOrBlank()
+                    || etWilayah.text.isNullOrBlank()
+                    || etZone.text.isNullOrBlank()
+                    || etBagian.text.isNullOrBlank()
+                    || etCoordinate.text.isNullOrBlank()){
+
+                    if(etName.text.isNullOrBlank()){
+                        textInputLayoutName.error = "Nama harus diisi"
+                    }else{
+                        textInputLayoutName.error = null
+                    }
+
+                    if(etCoordinate.text.isNullOrBlank()){
+                        textInputLayoutCoordinate.error = "Isi koordinat dengan mengambil photo pegawai"
+                    }else{
+                        textInputLayoutCoordinate.error = null
+                    }
+
+                    if(etNik.text.isNullOrBlank()){
+                        textInputLayoutNIK.error = "NIK harus diisi"
+                    }else{
+                        textInputLayoutNIK.error = null
+                    }
+
+                    if(etZone.text.isNullOrBlank()){
+                        textInputLayoutZona.error = "Zona harus diisi"
+                    }else{
+                        textInputLayoutZona.error = null
+                    }
+
+                    if(etBagian.text.isNullOrBlank()){
+                        textInputLayoutBagian.error = "Bagian harus diisi"
+                    }else{
+                        textInputLayoutBagian.error = null
+                    }
+
+                    if(etWilayah.text.isNullOrBlank()){
+                        textInputLayoutWilayah.error = "Wilayah harus diisi"
+                    }else{
+                        textInputLayoutWilayah.error = null
+                    }
+
+                    return false
+                }
             }
 
-            if(etCoordinate.text.isNullOrBlank()){
-                textInputLayoutCoordinate.error = "Isi koordinat dengan mengambil photo pegawai"
-            }else{
-                textInputLayoutCoordinate.error = null
-            }
+            "Koor Wilayah" -> {
+                if(etName.text.isNullOrBlank()
+                    || etNik.text.isNullOrBlank()
+                    || etZone.text.isNullOrBlank()
+                    || etBagian.text.isNullOrBlank()
+                    || etCoordinate.text.isNullOrBlank()){
 
-            if(etNik.text.isNullOrBlank()){
-                textInputLayoutNIK.error = "NIK harus diisi"
-            }else{
-                textInputLayoutNIK.error = null
-            }
+                    if(etName.text.isNullOrBlank()){
+                        textInputLayoutName.error = "Nama harus diisi"
+                    }else{
+                        textInputLayoutName.error = null
+                    }
 
-            if(etZone.text.isNullOrBlank()){
-                textInputLayoutZona.error = "Zona harus diisi"
-            }else{
-                textInputLayoutZona.error = null
-            }
+                    if(etCoordinate.text.isNullOrBlank()){
+                        textInputLayoutCoordinate.error = "Isi koordinat dengan mengambil photo pegawai"
+                    }else{
+                        textInputLayoutCoordinate.error = null
+                    }
 
-            if(etZone.text.isNullOrBlank()){
-                textInputLayoutBagian.error = "Bagian harus diisi"
-            }else{
-                textInputLayoutBagian.error = null
-            }
+                    if(etNik.text.isNullOrBlank()){
+                        textInputLayoutNIK.error = "NIK harus diisi"
+                    }else{
+                        textInputLayoutNIK.error = null
+                    }
 
-            if(etWilayah.text.isNullOrBlank()){
-                textInputLayoutWilayah.error = "Wilayah harus diisi"
-            }else{
-                textInputLayoutWilayah.error = null
-            }
+                    if(etZone.text.isNullOrBlank()){
+                        textInputLayoutZona.error = "Zona harus diisi"
+                    }else{
+                        textInputLayoutZona.error = null
+                    }
 
-            return false
+                    if(etBagian.text.isNullOrBlank()){
+                        textInputLayoutBagian.error = "Bagian harus diisi"
+                    }else{
+                        textInputLayoutBagian.error = null
+                    }
+
+                    return false
+                }
+            }
         }
 
         return true
+    }
+
+    private fun getEmployeeFromApi(){
+        when(sessionManager.getSessionRole()){
+            "Kepala Zona" -> viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!)
+            "Koor Wilayah" -> viewModel.getZoneLeaderPerRegion(sessionManager.getSessionRegion()!!)
+        }
+
+        viewModel.employeeData.observe(this, Observer { employeeResponse ->
+            when (employeeResponse) {
+                is Resource.Success -> {
+                    employeeResponse.data.let {
+                        EmployeeSingleton.insertEmployeeData(it!!.data)
+                    }
+
+                    val autoCompleteAdapter = when(sessionManager.getSessionRole()){
+                        "Koor Wilayah" -> AutoCompleteZoneLeaderAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
+                        else -> AutoCompleteAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
+                    }
+
+                    etName.setAdapter(autoCompleteAdapter)
+                    Utility.dismissLoadingDialog()
+                }
+
+                is Resource.Error -> {
+                    employeeResponse.message?.let {
+                        Log.d("Error Employee Data", it)
+                    }
+                    Utility.dismissLoadingDialog()
+                }
+
+                is Resource.Loading -> {
+                }
+            }
+        })
     }
 
     private fun dismissError(){

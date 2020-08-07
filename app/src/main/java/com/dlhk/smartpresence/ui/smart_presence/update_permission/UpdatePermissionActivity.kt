@@ -1,12 +1,15 @@
 package com.dlhk.smartpresence.ui.smart_presence.update_permission
 
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -15,28 +18,51 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AttendanceRepo
+import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
-import com.dlhk.smartpresence.util.Resource
-import com.dlhk.smartpresence.util.Utility
+import com.dlhk.smartpresence.util.*
+import com.dlhk.smartpresence.util.Constant.Companion.ALFA
+import com.dlhk.smartpresence.util.Constant.Companion.DIALOG_PERMIT_ALFA
+import com.dlhk.smartpresence.util.Constant.Companion.DIALOG_PERMIT_LEAVE
+import com.dlhk.smartpresence.util.Constant.Companion.DIALOG_PERMIT_SICK
+import com.dlhk.smartpresence.util.Constant.Companion.PERMIT
+import kotlinx.android.synthetic.main.activity_presence.*
+import kotlinx.android.synthetic.main.activity_presence.imageViewFoto
+import kotlinx.android.synthetic.main.activity_submit_equipment.*
 import kotlinx.android.synthetic.main.activity_update_permission.*
+import kotlinx.android.synthetic.main.activity_update_permission.btnBack
+import kotlinx.android.synthetic.main.activity_update_permission.btnSubmit
+import kotlinx.android.synthetic.main.activity_update_permission.etName
+import kotlinx.android.synthetic.main.activity_update_permission.etNik
+import kotlinx.android.synthetic.main.activity_update_permission.etWilayah
+import kotlinx.android.synthetic.main.activity_update_permission.etZone
+import kotlinx.android.synthetic.main.activity_update_permission.textInputLayoutNIK
+import kotlinx.android.synthetic.main.activity_update_permission.textInputLayoutName
+import kotlinx.android.synthetic.main.activity_update_permission.textInputLayoutWilayah
+import kotlinx.android.synthetic.main.activity_update_permission.textInputLayoutZona
 
 class UpdatePermissionActivity : AppCompatActivity() {
 
     lateinit var viewModel: UpdatePermissionViewModel
+    lateinit var sessionManager: SessionManager
+    lateinit var employeeData: ArrayList<DataEmployee>
+    lateinit var permitStatus: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_update_permission)
 
         val attendanceRepo = AttendanceRepo()
-        val viewModelFactory = UpdatePermissionViewModelFactory(attendanceRepo)
+        val employeeRepo = EmployeeRepo()
+        val viewModelFactory = UpdatePermissionViewModelFactory(attendanceRepo, employeeRepo)
         viewModel = ViewModelProvider(this, viewModelFactory).get(UpdatePermissionViewModel::class.java)
+        sessionManager = SessionManager(this)
+
+        getEmployeeFromApi()
 
         var employeeId: Long = 0
-        val employeeData = EmployeeSingleton.getEmployeeData()
-        val autoCompleteAdapter = AutoCompleteAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
+        employeeData = EmployeeSingleton.getEmployeeData()
         etName.threshold = 1
-        etName.setAdapter(autoCompleteAdapter)
         etName.setOnItemClickListener { adapterView, view, position, id ->
             val selectedItem = adapterView.getItemAtPosition(position) as DataEmployee
             etNik.setText(selectedItem.employeeNumber)
@@ -60,12 +86,19 @@ class UpdatePermissionActivity : AppCompatActivity() {
             onBackPressed()
         }
 
+        etStatusIzin.setOnClickListener {
+            showActionDialog()
+        }
+
         btnSubmit.setOnClickListener {
             val nowsDate = Utility.getCurrentDate("yyyy-MM-dd")
-            val reason = etJenisIzin.text.toString()
+            val reason = if(etJenisIzin.text.toString().isBlank()) "" else etJenisIzin.text.toString()
 
             if(verifyInput()){
-                viewModel.sendPermit(nowsDate, reason, employeeId)
+                if(viewModel.permitData.value != null) viewModel.permitData.value = null
+
+                Utility.showLoadingDialog(supportFragmentManager, "Loading Permission")
+                viewModel.sendPermit(nowsDate, reason, employeeId, permitStatus )
                 viewModel.permitData.observe(this, Observer { response ->
                     when(response){
                         is Resource.Success ->{
@@ -79,14 +112,34 @@ class UpdatePermissionActivity : AppCompatActivity() {
                             Toast.makeText(this, "Error Uploading Data", Toast.LENGTH_SHORT).show()
                             Log.e("Error Update Permit", response.message!!)
                         }
-
-                        is Resource.Loading ->{
-                            Utility.showLoadingDialog(supportFragmentManager, "Loading")
-                        }
                     }
                 })
             }
         }
+    }
+
+    private fun getEmployeeFromApi(){
+        Utility.showLoadingDialog(supportFragmentManager, "Get EM Permission Loading")
+        viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!)
+        viewModel.employeeData.observe(this, Observer { employeeResponse ->
+            when (employeeResponse) {
+                is Resource.Success -> {
+                    employeeResponse.data.let {
+                        EmployeeSingleton.insertEmployeeData(it!!.data)
+                    }
+                    val autoCompleteAdapter = AutoCompleteAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
+                    etName.setAdapter(autoCompleteAdapter)
+                    Utility.dismissLoadingDialog()
+                }
+
+                is Resource.Error -> {
+                    employeeResponse.message?.let {
+                        Log.d("Error Employee Data", it)
+                    }
+                    Utility.dismissLoadingDialog()
+                }
+            }
+        })
     }
 
     private fun verifyInput(): Boolean{
@@ -94,7 +147,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
             || etNik.text.isNullOrBlank()
             || etWilayah.text.isNullOrBlank()
             || etZone.text.isNullOrBlank()
-            || etJenisIzin.text.isNullOrBlank()){
+            || etStatusIzin.text.isNullOrBlank()){
 
             if(etName.text.isNullOrBlank()){
                 textInputLayoutName.error = "Nama harus diisi"
@@ -102,10 +155,10 @@ class UpdatePermissionActivity : AppCompatActivity() {
                 textInputLayoutName.error = null
             }
 
-            if(etJenisIzin.text.isNullOrBlank()){
-                textInputLayoutJenisIzin.error = "Alasan harus diisi"
+            if(etStatusIzin.text.isNullOrBlank()){
+                textInputLayoutStatusIzin.error = "Status harus diisi"
             }else{
-                textInputLayoutJenisIzin.error = null
+                textInputLayoutStatusIzin.error = null
             }
 
             if(etNik.text.isNullOrBlank()){
@@ -132,11 +185,38 @@ class UpdatePermissionActivity : AppCompatActivity() {
         return true
     }
 
+    fun showActionDialog(){
+        val alertReason = AlertDialog.Builder(this).apply {
+            setItems(Constant.ACTION_PERMIT_REASON, DialogInterface.OnClickListener { dialogInterface, i ->
+                when(i){
+                    DIALOG_PERMIT_ALFA -> {
+                        etJenisIzin.isEnabled = false
+                        etStatusIzin.setText("Alfa")
+                        permitStatus = ALFA
+                    }
+                    DIALOG_PERMIT_SICK -> {
+                        etJenisIzin.isEnabled = true
+                        etStatusIzin.setText("Sakit")
+                        permitStatus = PERMIT
+                    }
+                    DIALOG_PERMIT_LEAVE -> {
+                        etJenisIzin.isEnabled = true
+                        etStatusIzin.setText("Izin")
+                        permitStatus = PERMIT
+                    }
+                }
+            })
+            create()
+            show()
+        }
+    }
+
     private fun clearInput(){
         etNik.setText("")
         etWilayah.setText("")
         etZone.setText("")
         etJenisIzin.setText("")
+        etStatusIzin.setText("")
     }
 
 

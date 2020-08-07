@@ -34,4 +34,16 @@ class AssessmentRepo {
         anorganic: Int
     ) = RetrofitInstance.api.sendGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, organic, anorganic)
 
+    suspend fun postZoneHeadAssessment(
+        presenceId: Long,
+        cleanliness: Int,
+        completeness: Int,
+        dataOfGarbage: Int,
+        disciplinePresence: Int,
+        reportI: Int,
+        reportII: Int,
+        reportIII: Int,
+        typeZone: String
+    ) = RetrofitInstance.api.sendHeadOfZoneAssessment(presenceId, cleanliness, completeness, dataOfGarbage, disciplinePresence, reportI, reportII, reportIII, typeZone)
+
 }

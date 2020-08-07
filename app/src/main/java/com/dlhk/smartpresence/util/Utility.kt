@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -35,7 +36,7 @@ import java.util.*
 class Utility {
     companion object{
 
-        val loadingDialog = DelayedProgressDialog()
+        private lateinit var loadingDialog: DelayedProgressDialog
 
         @Throws(IOException::class)
         fun createPhotoFile(context: Context): File?{
@@ -59,8 +60,11 @@ class Utility {
         }
 
         fun showLoadingDialog(fm: FragmentManager, TAG: String){
+            loadingDialog = DelayedProgressDialog()
             loadingDialog.show(fm, TAG)
             loadingDialog.isCancelable = false
+
+            Log.d("Loading on", TAG)
         }
 
         fun dismissLoadingDialog(){

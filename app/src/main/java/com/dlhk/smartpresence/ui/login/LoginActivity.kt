@@ -12,6 +12,7 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.repositories.UserManagementRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
+import com.dlhk.smartpresence.util.DelayedProgressDialog
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.Utility
@@ -39,6 +40,9 @@ class LoginActivity : AppCompatActivity() {
             val password = password.text.toString()
 
             if(username.isNotBlank() && password.isNotBlank()){
+                if(viewModel.loginData.value != null) viewModel.loginData.value = null
+
+                Utility.showLoadingDialog(supportFragmentManager, "Loading Login")
                 viewModel.login(username, password, this)
                 viewModel.loginData.observe(this, Observer {response ->
                     when(response){
@@ -64,13 +68,9 @@ class LoginActivity : AppCompatActivity() {
 
                         is Resource.Error -> {
                             response.message?.let {
-                                Utility.dismissLoadingDialog()
                                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
                             }
-                        }
-
-                        is Resource.Loading -> {
-                                Utility.showLoadingDialog(supportFragmentManager, "Loading")
+                            Utility.dismissLoadingDialog()
                         }
                     }
                 })

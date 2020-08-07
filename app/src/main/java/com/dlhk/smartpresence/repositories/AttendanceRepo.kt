@@ -9,8 +9,8 @@ class AttendanceRepo {
     suspend fun presence(employeeId: Long, dateOfPresence: RequestBody, coordinate: RequestBody, livePhoto: MultipartBody.Part) =
         RetrofitInstance.api.sendPresence(employeeId, dateOfPresence, coordinate, livePhoto)
 
-    suspend fun sendPermit(dateOfLeave: String, desc: String, employeeId: Long) =
-        RetrofitInstance.api.sendPermit(dateOfLeave, desc, employeeId)
+    suspend fun sendPermit(dateOfLeave: String, desc: String, employeeId: Long, leaveStatus: String) =
+        RetrofitInstance.api.sendPermit(dateOfLeave, desc, employeeId, leaveStatus)
 
 
 }

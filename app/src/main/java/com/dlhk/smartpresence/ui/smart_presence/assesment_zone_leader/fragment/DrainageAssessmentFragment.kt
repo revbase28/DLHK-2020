@@ -1,5 +1,6 @@
 package com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.text.Editable
@@ -16,11 +17,8 @@ import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderViewModel
+import com.dlhk.smartpresence.util.*
 import com.dlhk.smartpresence.util.Constant.Companion.DRAINAGE
-import com.dlhk.smartpresence.util.Resource
-import com.dlhk.smartpresence.util.SessionManager
-import com.dlhk.smartpresence.util.TypefaceManager
-import com.dlhk.smartpresence.util.Utility
 import com.hsalf.smileyrating.SmileyRating
 import kotlinx.android.synthetic.main.fragment_assessment_drainage.*
 
@@ -43,6 +41,7 @@ class DrainageAssesmentFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_assessment_drainage, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val typefaceManager = TypefaceManager(activity)
@@ -54,23 +53,32 @@ class DrainageAssesmentFragment : Fragment() {
         }
 
         var presenceId: Long = 0
-        etName.threshold = 1
-        etName.setOnItemClickListener { adapterView, view, position, id ->
-            val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
-            etNik.setText(selectedItem.employeeNumber)
-            etWilayah.setText(selectedItem.regionName)
-            etZone.setText(selectedItem.zoneName)
-            presenceId = selectedItem.presenceId
-        }
-        etName.addTextChangedListener(object :TextWatcher{
-            override fun afterTextChanged(p0: Editable?) {}
+        etName.apply {
+            threshold = 0
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                clearInput()
+            setOnItemClickListener { adapterView, view, position, id ->
+                val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
+                etNik.setText(selectedItem.employeeNumber)
+                etWilayah.setText(selectedItem.regionName)
+                etZone.setText(selectedItem.zoneName)
+                presenceId = selectedItem.presenceId
             }
-        })
+
+            addTextChangedListener(object :TextWatcher{
+                override fun afterTextChanged(p0: Editable?) {}
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    clearInput()
+                }
+            })
+
+            setOnTouchListener { view, motionEvent ->
+                etName.showDropDown()
+                false
+            }
+        }
 
         send.setOnClickListener {
             if(employeeDataList.size == 0){
@@ -84,6 +92,10 @@ class DrainageAssesmentFragment : Fragment() {
                 val weed = Utility.getRatingValue(ratingGulma.selectedSmiley)
 
                 if(verifyInput(cleanliness, completeness, discipline, sediment, weed)){
+
+                    if(viewModel.drainageAssessmentData.value != null) viewModel.drainageAssessmentData.value = null
+
+                    Utility.showLoadingDialog(childFragmentManager, "Loading Drainage")
                     viewModel.sendDrainageAssessment(presenceId, cleanliness, completeness, discipline, sediment, weed)
                     viewModel.drainageAssessmentData.observe(viewLifecycleOwner, Observer { response ->
                         when(response){
@@ -98,9 +110,6 @@ class DrainageAssesmentFragment : Fragment() {
                                 Toast.makeText(activity, "Error Posting Data", Toast.LENGTH_LONG).show()
                                 Log.e("Error Drainage", response.message.toString())
                             }
-                            is Resource.Loading -> {
-                                Utility.showLoadingDialog(childFragmentManager, "Loading")
-                            }
                         }
                     })
                 }else{
@@ -112,7 +121,7 @@ class DrainageAssesmentFragment : Fragment() {
     }
 
     private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
-        Utility.showLoadingDialog(childFragmentManager, "Loading")
+        Utility.showLoadingDialog(childFragmentManager, "Loading EM Drainage")
         viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
         viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
             when(response){
@@ -130,8 +139,6 @@ class DrainageAssesmentFragment : Fragment() {
                     Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
                     Utility.dismissLoadingDialog()
                     (activity as AssesmentZoneLeaderActivity).onBackPressed()
-                }
-                is Resource.Loading ->{
                 }
             }
         })

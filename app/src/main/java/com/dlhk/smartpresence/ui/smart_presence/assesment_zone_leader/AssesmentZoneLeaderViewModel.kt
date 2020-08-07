@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dlhk.smartpresence.api.response.ResponseGetPresence
-import com.dlhk.smartpresence.api.response.ResponsePostAssessmentGarbageCollector
+import com.dlhk.smartpresence.api.response.ResponsePostGarbageCollectorAssessment
 import com.dlhk.smartpresence.api.response.ResponsePostDrainageAssessment
 import com.dlhk.smartpresence.api.response.ResponsePostSweeperAssessment
 import com.dlhk.smartpresence.repositories.AssessmentRepo
@@ -21,7 +21,7 @@ class AssesmentZoneLeaderViewModel(
     val presenceData: MutableLiveData<Resource<ResponseGetPresence>> = MutableLiveData()
     val drainageAssessmentData: MutableLiveData<Resource<ResponsePostDrainageAssessment>> = MutableLiveData()
     val sweeperAssessmentData: MutableLiveData<Resource<ResponsePostSweeperAssessment>> = MutableLiveData()
-    val garbageCollectorAssessmentData: MutableLiveData<Resource<ResponsePostAssessmentGarbageCollector>> = MutableLiveData()
+    val garbageCollectorDataAssessment: MutableLiveData<Resource<ResponsePostGarbageCollectorAssessment>> = MutableLiveData()
 
     fun getEmployeePerRegionAndRole(zoneName: String, regionName: String, role: String){
         viewModelScope.launch {
@@ -68,7 +68,7 @@ class AssesmentZoneLeaderViewModel(
         anorganic: Int
     ){
         viewModelScope.launch {
-            garbageCollectorAssessmentData.postValue(Resource.Loading())
+            garbageCollectorDataAssessment.postValue(Resource.Loading())
             val response = assessmentRepo.postGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, organic, anorganic)
             handleGarbageCollectorAssessment(response)
         }
@@ -104,13 +104,13 @@ class AssesmentZoneLeaderViewModel(
         }
     }
 
-    private fun handleGarbageCollectorAssessment(response: Response<ResponsePostAssessmentGarbageCollector>){
-        if(response.isSuccessful){
-            response.body().let { response ->
-                garbageCollectorAssessmentData.postValue(Resource.Success(response))
+    private fun handleGarbageCollectorAssessment(responseAssessment: Response<ResponsePostGarbageCollectorAssessment>){
+        if(responseAssessment.isSuccessful){
+            responseAssessment.body().let { response ->
+                garbageCollectorDataAssessment.postValue(Resource.Success(response))
             }
         }else{
-            garbageCollectorAssessmentData.postValue(Resource.Error(response.message()))
+            garbageCollectorDataAssessment.postValue(Resource.Error(responseAssessment.message()))
         }
     }
 }

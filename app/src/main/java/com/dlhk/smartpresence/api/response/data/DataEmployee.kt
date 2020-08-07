@@ -1,7 +1,10 @@
 package com.dlhk.smartpresence.api.response.data
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 data class DataEmployee(
     val age: Int,
@@ -18,5 +21,4 @@ data class DataEmployee(
     val role: String,
     val roleId: Int,
     val zone: String,
-    val zoneId: Int
-)
+    val zoneId: Int )

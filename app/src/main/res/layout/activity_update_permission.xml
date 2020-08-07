@@ -141,6 +141,33 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutStatusIzin"
+        style="@style/EditTextInputGreenLayoutStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Status Izin"
+        android:textColorHint="@color/lightBlack"
+        app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        app:hintTextColor="@color/green"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutZona">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etStatusIzin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="false"
+            android:focusable="false"
+            android:inputType="text"
+            android:textColor="@color/black" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayoutJenisIzin"
         style="@style/EditTextInputGreenLayoutStyle"
         android:layout_width="match_parent"
@@ -154,14 +181,12 @@
         app:hintTextColor="@color/green"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutZona">
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutStatusIzin">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etJenisIzin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:inputType="text"
             android:textColor="@color/black" />
 

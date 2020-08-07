@@ -18,8 +18,9 @@ import com.dlhk.smartpresence.EmployeeSingleton
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.ui.main_menu.MainMenuViewModel
-import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.AssessmentZoneCoordinatorActivity
+import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.AssessmentRegionCoordinatorActivity
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
+import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportActivity
 import com.dlhk.smartpresence.ui.smart_presence.presence.PresenceActivity
 import com.dlhk.smartpresence.ui.smart_presence.update_permission.UpdatePermissionActivity
 import com.dlhk.smartpresence.util.Resource
@@ -58,20 +59,22 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         determineAccess(sessionManager.getSessionRole()!!, view)
 
         cardAbsen.setOnClickListener {
-            Utility.showLoadingDialog(childFragmentManager, "Loading")
-            getEmployeeDataThenStartActivity(PresenceActivity::class.java)
+            startActivityTo(PresenceActivity::class.java)
         }
 
         cardAssesment.setOnClickListener {
             when(sessionManager.getSessionRole()){
                 "Kepala Zona" -> startActivityTo(AssesmentZoneLeaderActivity::class.java)
-                "Koor Wilayah" -> startActivityTo(AssessmentZoneCoordinatorActivity::class.java)
+                "Koor Wilayah" -> startActivityTo(AssessmentRegionCoordinatorActivity::class.java)
             }
         }
 
         cardPermission.setOnClickListener {
-            Utility.showLoadingDialog(childFragmentManager, "Loading")
-            getEmployeeDataThenStartActivity(UpdatePermissionActivity::class.java)
+            startActivityTo(UpdatePermissionActivity::class.java)
+        }
+
+        cardReport.setOnClickListener {
+            startActivityTo(FieldReportActivity::class.java)
         }
     }
 
@@ -80,36 +83,6 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         intent.apply {
             startActivity(this)
         }
-    }
-
-    private fun getEmployeeDataThenStartActivity(cls: Class<*>){
-        viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!)
-        viewModel.employeeData.observe(this, Observer { employeeResponse ->
-            when (employeeResponse) {
-                is Resource.Success -> {
-                    employeeResponse.data.let {
-                        EmployeeSingleton.insertEmployeeData(it!!.data)
-                    }
-                    Utility.dismissLoadingDialog()
-                    startActivityTo(cls)
-                }
-
-                is Resource.Error -> {
-                    employeeResponse.message?.let {
-                        Log.d("Error Employee Data", it)
-                        Utility.dismissLoadingDialog()
-                        Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
-                    }
-                }
-
-                is Resource.Loading -> {
-                    employeeResponse.message?.let {
-                        Utility.showLoadingDialog(childFragmentManager, "Loading")
-                        Toast.makeText(activity, "Loading", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
     }
 
     private fun determineAccess(role: String, view: View){
@@ -128,16 +101,11 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
                     view.cardLiveSupervisiChild.background.colorFilter = BlendModeColorFilter(
                         Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
-                    view.cardAbsenChild.background.colorFilter = BlendModeColorFilter(
-                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
                 }else{
                     view.cardLiveSupervisiChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
-                    view.cardAbsenChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
                 }
                 cardLiveSupervisi.isEnabled = false
                 cardLiveSupervisi.isClickable = false
-                cardAbsen.isEnabled = false
-                cardAbsen.isClickable = false
             }
             "Admin" -> {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){

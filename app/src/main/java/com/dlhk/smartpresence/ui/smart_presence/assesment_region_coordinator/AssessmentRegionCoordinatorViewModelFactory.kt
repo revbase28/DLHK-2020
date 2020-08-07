@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.dlhk.smartpresence.repositories.AssessmentRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 
-class AssessmentZoneCoordinatorViewModelFactory(
+class AssessmentRegionCoordinatorViewModelFactory(
     val employeeRepo: EmployeeRepo,
     val assessmentRepo: AssessmentRepo
 ): ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return AssessmentZoneCoordinatorViewModel(employeeRepo, assessmentRepo) as T
+        return AssessmentRegionCoordinatorViewModel(employeeRepo, assessmentRepo) as T
     }
 }

@@ -1,5 +1,6 @@
 package com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.text.Editable
@@ -12,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
 import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
@@ -41,6 +41,7 @@ class GarbageCollectorAssesmentFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_assesment_garbage_collector, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -61,24 +62,33 @@ class GarbageCollectorAssesmentFragment : Fragment() {
         }
 
         var presenceId: Long = 0
-        etName.threshold = 1
-        etName.setOnItemClickListener { adapterView, view, position, id ->
-            val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
-            etNik.setText(selectedItem.employeeNumber)
-            etWilayah.setText(selectedItem.regionName)
-            etZone.setText(selectedItem.zoneName)
-            presenceId = selectedItem.presenceId
+        etName.apply {
+            threshold = 0
+
+            setOnItemClickListener { adapterView, view, position, id ->
+                val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
+                etNik.setText(selectedItem.employeeNumber)
+                etWilayah.setText(selectedItem.regionName)
+                etZone.setText(selectedItem.zoneName)
+                presenceId = selectedItem.presenceId
+            }
+
+            addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(p0: Editable?) {}
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    clearInput()
+                }
+            })
+
+            setOnTouchListener { view, motionEvent ->
+                etName.showDropDown()
+                false
+            }
         }
 
-        etName.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {}
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                clearInput()
-            }
-        })
 
         send.setOnClickListener {
             if(employeeDataList.size == 0){
@@ -90,8 +100,11 @@ class GarbageCollectorAssesmentFragment : Fragment() {
                 val tps = Utility.getRatingValue(ratingPembuangan.selectedSmiley)
 
                 if(verifyInput(discipline, calculation, separation, tps)){
+                    if(viewModel.garbageCollectorDataAssessment.value != null) viewModel.garbageCollectorDataAssessment.value = null
+
+                    Utility.showLoadingDialog(childFragmentManager, "Loading Garbage")
                     viewModel.sendGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, Integer.parseInt(etSampahOrganik.text.toString()), Integer.parseInt(etSampahAnorganik.text.toString()))
-                    viewModel.garbageCollectorAssessmentData.observe(viewLifecycleOwner, Observer { response ->
+                    viewModel.garbageCollectorDataAssessment.observe(viewLifecycleOwner, Observer { response ->
                         when(response){
                             is Resource.Success ->{
                                 clearInput()
@@ -104,9 +117,6 @@ class GarbageCollectorAssesmentFragment : Fragment() {
                                 Toast.makeText(activity, "Error Posting Data", Toast.LENGTH_LONG).show()
                                 Log.e("Error Garbage Collector", response.message.toString())
                             }
-                            is Resource.Loading ->{
-                                Utility.showLoadingDialog(childFragmentManager, "Loading")
-                            }
                         }
                     })
                 }else{
@@ -117,7 +127,7 @@ class GarbageCollectorAssesmentFragment : Fragment() {
     }
 
     private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
-        Utility.showLoadingDialog(childFragmentManager, "Loading")
+        Utility.showLoadingDialog(childFragmentManager, "Loading EM Garbage")
         viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
         viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
             when(response){
@@ -135,8 +145,6 @@ class GarbageCollectorAssesmentFragment : Fragment() {
                     Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
                     Utility.dismissLoadingDialog()
                     (activity as AssesmentZoneLeaderActivity).onBackPressed()
-                }
-                is Resource.Loading ->{
                 }
             }
         })

@@ -1,5 +1,6 @@
 package com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -54,6 +55,7 @@ class SweeperAssesmentFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_assessment_sweeper, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -67,24 +69,34 @@ class SweeperAssesmentFragment : Fragment() {
         }
 
         var presenceId : Long = 0
-        etName.threshold = 1
-        etName.setOnItemClickListener { adapterView, view, position, id ->
-            val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
-            etNik.setText(selectedItem.employeeNumber)
-            etWilayah.setText(selectedItem.regionName)
-            etZone.setText(selectedItem.zoneName)
-            presenceId = selectedItem.presenceId
+        etName.apply {
+            threshold = 0
+
+            setOnItemClickListener { adapterView, view, position, id ->
+                val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
+                etNik.setText(selectedItem.employeeNumber)
+                etWilayah.setText(selectedItem.regionName)
+                etZone.setText(selectedItem.zoneName)
+                presenceId = selectedItem.presenceId
+            }
+
+            addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(p0: Editable?) {}
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    clearInput()
+                }
+            })
+
+            setOnTouchListener { view, motionEvent ->
+                etName.showDropDown()
+                false
+            }
+
         }
 
-        etName.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {}
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                clearInput()
-            }
-        })
 
         send.setOnClickListener {
             if(employeeDataList.size == 0){
@@ -98,6 +110,9 @@ class SweeperAssesmentFragment : Fragment() {
                 val roadMedian = Utility.getRatingValue(ratingMedianJalan.selectedSmiley)
 
                 if(verifyInput(road, completeness, discipline, sidewalk, waterRope, roadMedian)){
+                    if(viewModel.sweeperAssessmentData.value != null) viewModel.sweeperAssessmentData.value = null
+
+                    Utility.showLoadingDialog(childFragmentManager, "Loading Sweeper")
                     viewModel.sendSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian)
                     viewModel.sweeperAssessmentData.observe(viewLifecycleOwner, Observer { response ->
                         when(response){
@@ -112,9 +127,6 @@ class SweeperAssesmentFragment : Fragment() {
                                 Toast.makeText(activity, "Error Posting Data", Toast.LENGTH_LONG).show()
                                 Log.e("Error Sweeper", response.message.toString())
                             }
-                            is Resource.Loading -> {
-                                Utility.showLoadingDialog(childFragmentManager, "Loading")
-                            }
                         }
                     })
                 }else{
@@ -125,7 +137,7 @@ class SweeperAssesmentFragment : Fragment() {
     }
 
     private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
-        Utility.showLoadingDialog(childFragmentManager, "Loading")
+        Utility.showLoadingDialog(childFragmentManager, "Loading EM Sweeper")
         viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
         viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
             when(response){
@@ -143,8 +155,6 @@ class SweeperAssesmentFragment : Fragment() {
                     Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
                     Utility.dismissLoadingDialog()
                     (activity as AssesmentZoneLeaderActivity).onBackPressed()
-                }
-                is Resource.Loading ->{
                 }
             }
         })

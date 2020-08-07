@@ -41,9 +41,9 @@
             android:id="@+id/imageViewFoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxHeight="180dp"
-            android:adjustViewBounds="true"
             android:layout_marginTop="24dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="180dp"
             android:src="@drawable/placeholder_camera_green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -85,9 +85,9 @@
             android:layout_marginEnd="16dp"
             android:hint="Name"
             android:textColorHint="@color/lightBlack"
+            app:endIconMode="none"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:hintTextColor="@color/green"
-            app:endIconMode="none"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewFoto">
@@ -98,7 +98,7 @@
                 android:layout_height="wrap_content"
                 android:focusable="true"
                 android:inputType="text"
-                android:textColor="@color/black"  />
+                android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -142,14 +142,14 @@
             app:hintTextColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutWilayah">
+            app:layout_constraintTop_toBottomOf="@+id/barrier2">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etZone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
                 android:enabled="false"
+                android:inputType="textPersonName"
                 android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -200,8 +200,8 @@
                 android:id="@+id/etCoordinate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:enabled="false"/>
+                android:enabled="false"
+                android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -222,6 +222,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutCoordinate" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="textInputLayoutNIK,textInputLayoutWilayah"
+            tools:layout_editor_absoluteY="805dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

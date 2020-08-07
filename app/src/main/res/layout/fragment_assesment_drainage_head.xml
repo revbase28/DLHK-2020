@@ -38,13 +38,14 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutName"
-            style="@style/EditTextInputBlueLayoutStyle"
+            style="@style/EditTextDropdownInputBlueLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:hint="Name"
+            app:endIconMode="custom"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:hintTextColor="@color/colorPrimary"
@@ -52,7 +53,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView14">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
                 android:id="@+id/etName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,13 +79,14 @@
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutName">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etNIK"
+                android:id="@+id/etNik"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:inputType="text"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:enabled="false"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -109,7 +111,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:enabled="false"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -322,7 +325,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Kebersihan Zona"
+                    android:text="Kebersihan Drainase"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="italic"

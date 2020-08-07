@@ -2,7 +2,7 @@ package com.dlhk.smartpresence.api.response
 
 import com.dlhk.smartpresence.api.response.data.DataAssessmentGarbageCollector
 
-data class ResponsePostAssessmentGarbageCollector(
+data class ResponsePostGarbageCollectorAssessment(
     val dataAssessmentGarbageCollector: DataAssessmentGarbageCollector,
     val errorCode: Int,
     val message: String,

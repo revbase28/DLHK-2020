@@ -14,4 +14,7 @@ class EmployeeRepo(
     suspend fun getZoneLeaderPerRegion(regionName: String) =
         RetrofitInstance.api.getZoneLeaderPerRegion(regionName)
 
+    suspend fun getPresenceHeadOfZonePerRegion(regionName: String) =
+        RetrofitInstance.api.getPresenceDataHeadOfZonePerRegion(regionName)
+
 }

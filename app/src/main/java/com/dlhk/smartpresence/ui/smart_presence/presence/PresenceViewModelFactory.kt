@@ -8,9 +8,10 @@ import com.dlhk.smartpresence.repositories.EmployeeRepo
 
 class PresenceViewModelFactory(
     val attendanceRepo: AttendanceRepo,
+    val employeeRepo: EmployeeRepo,
     val app: Application
 ): ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return PresenceViewModel(attendanceRepo, app) as T
+        return PresenceViewModel(attendanceRepo, employeeRepo, app) as T
     }
 }
