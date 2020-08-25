@@ -3,6 +3,7 @@ package com.dlhk.smartpresence
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.dlhk.smartpresence.api.response.data.DataLocation
 import com.google.android.gms.location.LocationCallback
@@ -11,6 +12,11 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 
 class LocationLiveData(context: Context) : LiveData<DataLocation>() {
+
+    init {
+        Log.d("Location Live Data", "Called")
+    }
+
     private var fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     private val locationCallback = object : LocationCallback(){
@@ -46,6 +52,7 @@ class LocationLiveData(context: Context) : LiveData<DataLocation>() {
     @SuppressLint("MissingPermission")
     override fun onActive() {
         super.onActive()
+        Log.d("Location Live Data", "Active")
         fusedLocationClient.lastLocation.addOnSuccessListener {location ->
             location?.also {
                 setLocationData(it)

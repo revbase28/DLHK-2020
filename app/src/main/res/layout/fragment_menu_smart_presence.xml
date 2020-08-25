@@ -85,21 +85,21 @@
         android:id="@+id/cardAssesment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="@android:color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/cardPermission"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/cardAbsen"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3">
+        app:layout_constraintTop_toTopOf="@+id/cardPermission">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cardAssessmentChild"
-            android:background="@android:color/white"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@android:color/white">
 
             <ImageView
                 android:id="@+id/imageView8"
@@ -185,22 +185,22 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardLiveSupervisi"
+        android:id="@+id/cardSelfPresence"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:backgroundTint="@android:color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/cardAbsen"
         app:layout_constraintEnd_toEndOf="@+id/cardAssesment"
         app:layout_constraintStart_toStartOf="@+id/cardAssesment"
-        app:layout_constraintTop_toBottomOf="@+id/cardAbsen">
+        app:layout_constraintTop_toTopOf="@+id/cardAbsen">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cardLiveSupervisiChild"
-            android:background="@android:color/white"
+            android:id="@+id/cardSelfPresenceChild"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@android:color/white">
 
             <ImageView
                 android:id="@+id/imageView10"
@@ -209,7 +209,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="32dp"
-                android:src="@drawable/ic_live_supervisi"
+                android:src="@drawable/ic_self_presence"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -222,7 +222,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
-                android:text="Live Supervisi"
+                android:text="Absen Diri"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="16sp"

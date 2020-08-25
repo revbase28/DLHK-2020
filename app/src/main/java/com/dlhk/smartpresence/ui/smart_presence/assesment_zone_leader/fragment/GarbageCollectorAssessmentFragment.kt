@@ -50,8 +50,9 @@ class GarbageCollectorAssesmentFragment : Fragment() {
         sessionManager = SessionManager(activity as AssesmentZoneLeaderActivity)
 
         if(employeeDataList.size == 0){
+            Utility.showLoadingDialog(childFragmentManager, "Loading EM Garbage")
             getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!,
-                GARBAGE_COLLECTOR
+                GARBAGE_COLLECTOR, sessionManager.getSessionShift()
             )
         }else{
             val discipline = Utility.getRatingValue(ratingKetepatanWaktu.selectedSmiley)
@@ -110,6 +111,9 @@ class GarbageCollectorAssesmentFragment : Fragment() {
                                 clearInput()
                                 etName.setText("")
                                 Utility.dismissLoadingDialog()
+                                getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!,
+                                    GARBAGE_COLLECTOR,sessionManager.getSessionShift()
+                                )
                                 Utility.showSuccessDialog("Data berhasil disimpan", "Pertahankan kualitas kerja dan selalu jaga kesehatan", activity)
                             }
                             is Resource.Error ->{
@@ -126,9 +130,8 @@ class GarbageCollectorAssesmentFragment : Fragment() {
         }
     }
 
-    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
-        Utility.showLoadingDialog(childFragmentManager, "Loading EM Garbage")
-        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
+    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String, shift: String){
+        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role, shift)
         viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
             when(response){
                 is Resource.Success ->{

@@ -4,22 +4,33 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.ViewPagerAdapter
+import com.dlhk.smartpresence.repositories.StatisticRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.PerformanceStatisticFragment
 import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.PresenceStatisticFragment
+import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.RegionPresenceStatisticFragment
+import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.TypefaceManager
 import kotlinx.android.synthetic.main.activity_field_report.*
 
 class FieldReportActivity : AppCompatActivity() {
 
+    lateinit var viewModel: FieldReportViewModel
+    lateinit var sessionManager: SessionManager
     var fragments: ArrayList<Fragment> = ArrayList<Fragment>()
     var titles: ArrayList<String> = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_field_report)
+
+        val statisticRepo = StatisticRepo()
+        val viewModelFactory = FieldReportViewModelFactory(statisticRepo)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(FieldReportViewModel::class.java)
+        sessionManager = SessionManager(this)
 
         TypefaceManager(this)
         populateList()
@@ -34,8 +45,17 @@ class FieldReportActivity : AppCompatActivity() {
     }
 
     private fun populateList(){
-        fragments.add(PresenceStatisticFragment())
-        fragments.add(PerformanceStatisticFragment())
+        when(sessionManager.getSessionRole()){
+            "Koor Wilayah" -> {
+                fragments.add(PresenceStatisticFragment())
+                fragments.add(PerformanceStatisticFragment())
+            }
+
+            "Admin" -> {
+                fragments.add(RegionPresenceStatisticFragment())
+                fragments.add(PerformanceStatisticFragment())
+            }
+        }
 
         titles.add("Absen")
         titles.add("Performa")

@@ -5,6 +5,9 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -23,9 +26,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.inventory.stock_check.StockCheckActivity"></activity>
+        <activity android:name=".ui.smart_presence.region_presence_statistic.ZoneOnRegionPresenceStatisticActivity"></activity>
+        <activity android:name=".ui.smart_presence.assessment_civil_apparatus.CivilAppartusAssessmentActivity" />
+        <activity android:name=".ui.smart_presence.individual_presence_statistic.IndividualPresenceStatisticActivity" />
+        <activity android:name=".ui.smart_presence.confirm_permission.ConfirmPermission" />
+        <activity android:name=".ui.inventory.stock_check.StockCheckActivity" />
         <activity android:name=".ui.inventory.inventory_check.InventoryCheckActivity" />
-        <activity android:name=".ui.smart_presence.live_supervision.LiveSupervisionActivity" />
+        <activity android:name=".ui.smart_presence.self_presence.SelfPresenceActivity" />
         <activity android:name=".ui.smart_presence.field_report.FieldReportActivity" />
         <activity android:name=".ui.inventory.submit_equipment.SubmitEquipmentActivity" />
         <activity android:name=".ui.smart_presence.update_permission.UpdatePermissionActivity" />

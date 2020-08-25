@@ -58,6 +58,8 @@ class UpdatePermissionActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory).get(UpdatePermissionViewModel::class.java)
         sessionManager = SessionManager(this)
 
+
+        Utility.showLoadingDialog(supportFragmentManager, "Get EM Permission Loading")
         getEmployeeFromApi()
 
         var employeeId: Long = 0
@@ -92,19 +94,20 @@ class UpdatePermissionActivity : AppCompatActivity() {
 
         btnSubmit.setOnClickListener {
             val nowsDate = Utility.getCurrentDate("yyyy-MM-dd")
-            val reason = if(etJenisIzin.text.toString().isBlank()) "" else etJenisIzin.text.toString()
 
             if(verifyInput()){
                 if(viewModel.permitData.value != null) viewModel.permitData.value = null
 
+                val reason = if(etStatusIzin.text.toString() == "Alfa") "" else etJenisIzin.text.toString()
                 Utility.showLoadingDialog(supportFragmentManager, "Loading Permission")
                 viewModel.sendPermit(nowsDate, reason, employeeId, permitStatus )
                 viewModel.permitData.observe(this, Observer { response ->
                     when(response){
                         is Resource.Success ->{
                             Utility.dismissLoadingDialog()
-                            Utility.showSuccessDialog("Izin Terkirim", "Izin anda telah diajukan kepada atasan", this)
                             etName.setText("")
+                            Utility.showSuccessDialog("Izin Terkirim", "Izin anda telah diajukan", this)
+                            getEmployeeFromApi()
                         }
 
                         is Resource.Error ->{
@@ -119,8 +122,11 @@ class UpdatePermissionActivity : AppCompatActivity() {
     }
 
     private fun getEmployeeFromApi(){
-        Utility.showLoadingDialog(supportFragmentManager, "Get EM Permission Loading")
-        viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!)
+        if(viewModel.employeeData.value != null){
+            viewModel.employeeData.postValue(null)
+        }
+
+        viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!, sessionManager.getSessionShift())
         viewModel.employeeData.observe(this, Observer { employeeResponse ->
             when (employeeResponse) {
                 is Resource.Success -> {
@@ -159,6 +165,15 @@ class UpdatePermissionActivity : AppCompatActivity() {
                 textInputLayoutStatusIzin.error = "Status harus diisi"
             }else{
                 textInputLayoutStatusIzin.error = null
+                if(etStatusIzin.text.toString() != "Alfa"){
+                    if(etJenisIzin.text.isNullOrBlank()){
+                        textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                    }else{
+                        textInputLayoutJenisIzin.error = null
+                    }
+                }else{
+                    textInputLayoutJenisIzin.error = null
+                }
             }
 
             if(etNik.text.isNullOrBlank()){
@@ -180,6 +195,15 @@ class UpdatePermissionActivity : AppCompatActivity() {
             }
 
             return false
+
+        }else if(etStatusIzin.text.toString() != "Alfa"){
+
+            if(etJenisIzin.text.isNullOrBlank()){
+                textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                return false
+            }else{
+                textInputLayoutJenisIzin.error = null
+            }
         }
 
         return true
@@ -217,6 +241,12 @@ class UpdatePermissionActivity : AppCompatActivity() {
         etZone.setText("")
         etJenisIzin.setText("")
         etStatusIzin.setText("")
+        textInputLayoutName.error = null
+        textInputLayoutStatusIzin.error = null
+        textInputLayoutNIK.error = null
+        textInputLayoutZona.error = null
+        textInputLayoutWilayah.error = null
+        textInputLayoutJenisIzin.error = null
     }
 
 

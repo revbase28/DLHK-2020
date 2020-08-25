@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
+import com.norbsoft.typefacehelper.TypefaceHelper
 
 class AutoCompleteZoneLeaderAdapter(
     val mContext: Context,
@@ -38,6 +39,7 @@ class AutoCompleteZoneLeaderAdapter(
             textName.text = "${employee.name} - (${employee.zone})"
         }
 
+        TypefaceHelper.typeface(view)
         return view!!
     }
 

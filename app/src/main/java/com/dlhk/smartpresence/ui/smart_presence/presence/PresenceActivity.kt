@@ -122,7 +122,6 @@ class PresenceActivity : AppCompatActivity() {
             takePicture()
         }
 
-        var clicked = 1
         var loading = 1
         btnSubmit.setOnClickListener {
             if(viewModel.presenceData.value != null){
@@ -131,19 +130,26 @@ class PresenceActivity : AppCompatActivity() {
 
             if(verifyInput(sessionManager.getSessionRole()!!)){
                 Utility.showLoadingDialog(supportFragmentManager, "Loading Presence")
-                viewModel.sendPresence(employeeId, NowsDate, etCoordinate.text.toString(), sendReadyPhotoFile)
+                viewModel.sendPresence(employeeId, sessionManager.getSessionShift(), etCoordinate.text.toString(), sendReadyPhotoFile)
                 viewModel.presenceData.observe(this, Observer { response ->
                     when(response){
                         is Resource.Success -> {
                             response.data?.let {
-                                Toast.makeText(this, "Upload Success", Toast.LENGTH_LONG).show()
+                                Utility.showSuccessPresenceDialog(
+                                    this,
+                                    photoPath,
+                                    it.data.employeeName,
+                                    it.data.employeeNumber,
+                                    it.data.regionName,
+                                    it.data.zoneName,
+                                    it.data.timeOfPresence,
+                                    it.data.roleName)
+
                                 etName.setText("")
                                 etCoordinate.setText("")
                                 imageViewFoto.setImageDrawable(resources.getDrawable(R.drawable.placeholder_camera_green, null))
                                 dismissError()
                                 getEmployeeFromApi()
-                                clicked++
-                                Log.d("Value After ${clicked}", viewModel.presenceData.value.toString())
                             }
                             Utility.dismissLoadingDialog()
                         }
@@ -204,30 +210,11 @@ class PresenceActivity : AppCompatActivity() {
         alert.show()
     }
 
-    private fun invokeLocationAction() {
-        if(!isPermissionsGranted()){
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-                LOCATION_REQUEST)
-        }
-    }
-
     private fun startLocationUpdate(){
         viewModel.getCurrentLocation().observe(this, Observer {
             etCoordinate.setText("Lat ${it.latitude}, Long ${it.longitude}")
         })
     }
-
-    private fun isPermissionsGranted() =
-        ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
 
     private fun clearInput(){
         etNik.setText("")
@@ -334,7 +321,7 @@ class PresenceActivity : AppCompatActivity() {
 
     private fun getEmployeeFromApi(){
         when(sessionManager.getSessionRole()){
-            "Kepala Zona" -> viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!)
+            "Kepala Zona" -> viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!, sessionManager.getSessionShift())
             "Koor Wilayah" -> viewModel.getZoneLeaderPerRegion(sessionManager.getSessionRegion()!!)
         }
 
@@ -380,7 +367,6 @@ class PresenceActivity : AppCompatActivity() {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
             imageViewFoto.setImageBitmap(viewModel.decodeFile(photoPath))
             startLocationUpdate()
-            NowsDate = Utility.getCurrentDate("yyyy-MM-dd'T'HH:mm:ss")
             CoroutineScope(IO).launch {
                 sendReadyPhotoFile.also {
                     sendReadyPhotoFile = Utility.compressFile(this@PresenceActivity, it)
@@ -395,7 +381,7 @@ class PresenceActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             LOCATION_REQUEST -> {
-                invokeLocationAction()
+                Utility.invokeLocationAction(this)
             }
         }
     }
@@ -409,6 +395,6 @@ class PresenceActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        invokeLocationAction()
+        Utility.invokeLocationAction(this)
     }
 }

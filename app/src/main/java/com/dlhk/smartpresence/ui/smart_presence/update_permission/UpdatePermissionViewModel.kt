@@ -37,10 +37,10 @@ class UpdatePermissionViewModel(
         return Resource.Error(response.message())
     }
 
-    fun getEmployeePerRegion(zoneName: String, regionName: String){
+    fun getEmployeePerRegion(zoneName: String, regionName: String, shift: String){
         viewModelScope.launch {
             employeeData.postValue(Resource.Loading())
-            val getEmployeeResponse = employeeRepo.getEmployeePerRegion(zoneName, regionName)
+            val getEmployeeResponse = employeeRepo.getEmployeePerRegion(zoneName, regionName, shift)
             handleGetEmployeeResponse(getEmployeeResponse)
         }
     }

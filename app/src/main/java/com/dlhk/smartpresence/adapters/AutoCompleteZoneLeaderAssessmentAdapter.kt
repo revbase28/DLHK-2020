@@ -10,6 +10,7 @@ import android.widget.Filter
 import android.widget.TextView
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
+import com.norbsoft.typefacehelper.TypefaceHelper
 
 class AutoCompleteZoneLeaderAssessmentAdapter(
     val mContext: Context,
@@ -37,6 +38,7 @@ class AutoCompleteZoneLeaderAssessmentAdapter(
             textName.text = "${employee.employeeName} - (${employee.zoneName})"
         }
 
+        TypefaceHelper.typeface(view)
         return view!!
     }
 

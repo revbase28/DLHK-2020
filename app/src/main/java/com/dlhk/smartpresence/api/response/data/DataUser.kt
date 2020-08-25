@@ -5,5 +5,7 @@ data class DataUser(
     val Photo: String,
     val RegionName: String?,
     val RoleName: String,
-    val ZoneName: String?
+    val ZoneName: String?,
+    val UserId: String,
+    val Shift: String
 )

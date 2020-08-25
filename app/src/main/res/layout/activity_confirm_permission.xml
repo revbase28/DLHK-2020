@@ -4,6 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.smart_presence.live_supervision.LiveSupervisionActivity">
+    tools:context=".ui.smart_presence.confirm_permission.ConfirmPermission">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

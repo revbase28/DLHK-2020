@@ -3,6 +3,7 @@ package com.dlhk.smartpresence.ui.smart_presence.presence
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -40,15 +41,16 @@ class PresenceViewModel(
        return Utility.decodeFile(path)
     }
 
-    fun sendPresence(employeeId: Long, dateOfPresence: String, coordinate: String, livePhoto: File){
+    fun sendPresence(employeeId: Long, shift: String, coordinate: String, livePhoto: File){
         viewModelScope.launch {
             presenceData.postValue(Resource.Loading())
             val body = livePhoto.asRequestBody("image/*".toMediaTypeOrNull())
             val image = MultipartBody.Part.createFormData("image", livePhoto.name, body)
-            val req_dateOFPresence = dateOfPresence.toRequestBody("text/plain".toMediaTypeOrNull());
+            val req_shift = shift.toRequestBody("text/plain".toMediaTypeOrNull());
             val req_coordinate = coordinate.toRequestBody("text/plain".toMediaTypeOrNull());
 
-            val response = attendanceRepo.presence(employeeId, req_dateOFPresence, req_coordinate, image)
+            Log.d("Shift", "${req_shift.toString()}, string = ${shift}")
+            val response = attendanceRepo.presence(employeeId, req_shift, req_coordinate, image)
             presenceData.postValue(handlePresenceResponse(response))
         }
     }
@@ -65,10 +67,10 @@ class PresenceViewModel(
         return Resource.Error(response.message())
     }
 
-    fun getEmployeePerRegion(zoneName: String, regionName: String){
+    fun getEmployeePerRegion(zoneName: String, regionName: String, shift: String){
         viewModelScope.launch {
             employeeData.postValue(Resource.Loading())
-            val getEmployeeResponse = employeeRepo.getEmployeePerRegion(zoneName, regionName)
+            val getEmployeeResponse = employeeRepo.getEmployeePerRegion(zoneName, regionName, shift)
             handleGetEmployeeResponse(getEmployeeResponse)
         }
     }

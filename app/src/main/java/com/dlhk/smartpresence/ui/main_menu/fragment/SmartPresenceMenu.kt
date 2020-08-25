@@ -14,30 +14,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
-import com.dlhk.smartpresence.EmployeeSingleton
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.ui.main_menu.MainMenuViewModel
 import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.AssessmentRegionCoordinatorActivity
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
+import com.dlhk.smartpresence.ui.smart_presence.assessment_civil_apparatus.CivilAppartusAssessmentActivity
 import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportActivity
 import com.dlhk.smartpresence.ui.smart_presence.presence.PresenceActivity
+import com.dlhk.smartpresence.ui.smart_presence.self_presence.SelfPresenceActivity
 import com.dlhk.smartpresence.ui.smart_presence.update_permission.UpdatePermissionActivity
-import com.dlhk.smartpresence.util.Resource
-import com.dlhk.smartpresence.util.SessionManager
-import com.dlhk.smartpresence.util.TypefaceManager
-import com.dlhk.smartpresence.util.Utility
+import com.dlhk.smartpresence.util.*
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.norbsoft.typefacehelper.TypefaceHelper
 import kotlinx.android.synthetic.main.fragment_menu_smart_presence.*
 import kotlinx.android.synthetic.main.fragment_menu_smart_presence.view.*
 
 
+@Suppress("DEPRECATION")
 class SmartPresenceMenu: BottomSheetDialogFragment() {
 
     private lateinit var viewModel: MainMenuViewModel
     private lateinit var activity: Activity
     private lateinit var sessionManager: SessionManager
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,21 +51,29 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = (activity as MainMenuActivity).viewModel
-
         sessionManager = SessionManager(activity as MainMenuActivity)
-        val typefaceManager = activity.let { TypefaceManager(it) }
+        val typefaceManager = TypefaceManager(activity)
         setFragmentTypeface(typefaceManager)
-
         determineAccess(sessionManager.getSessionRole()!!, view)
 
         cardAbsen.setOnClickListener {
-            startActivityTo(PresenceActivity::class.java)
+            checkUserPresenceStatus(sessionManager.getSessionId()!!,
+                {startActivityTo(PresenceActivity::class.java)},
+                {Utility.showWarningDialog("Anda Belum Absen", "Silahkan Absen diri anda terebih dulu sebelum mengabsen pegawai anda", activity)})
+        }
+
+        cardSelfPresence.setOnClickListener {
+            Toast.makeText(activity, "Clicked", Toast.LENGTH_SHORT).show()
+            checkUserPresenceStatus(sessionManager.getSessionId()!!,
+                {Utility.showWarningDialog("Anda Sudah Absen", "Silahkan lanjutkan kegiatan hari ini", activity)},
+                {startActivityTo(SelfPresenceActivity::class.java)})
         }
 
         cardAssesment.setOnClickListener {
             when(sessionManager.getSessionRole()){
                 "Kepala Zona" -> startActivityTo(AssesmentZoneLeaderActivity::class.java)
                 "Koor Wilayah" -> startActivityTo(AssessmentRegionCoordinatorActivity::class.java)
+                "Admin" -> startActivityTo(CivilAppartusAssessmentActivity::class.java)
             }
         }
 
@@ -89,25 +97,15 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         when(role){
             "Kepala Zona"-> {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-                    view.cardLiveSupervisiChild.background.colorFilter = BlendModeColorFilter(
+                    view.cardReportChild.background.colorFilter = BlendModeColorFilter(
                         Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
                 }else{
-                    view.cardLiveSupervisiChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
+                    view.cardReportChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
                 }
-                cardLiveSupervisi.isEnabled = false
-                cardLiveSupervisi.isClickable = false
+                cardReport.isEnabled = false
+                cardReport.isClickable = false
             }
             "Koor Wilayah" -> {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-                    view.cardLiveSupervisiChild.background.colorFilter = BlendModeColorFilter(
-                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
-                }else{
-                    view.cardLiveSupervisiChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
-                }
-                cardLiveSupervisi.isEnabled = false
-                cardLiveSupervisi.isClickable = false
-            }
-            "Admin" -> {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
                     view.cardAbsenChild.background.colorFilter = BlendModeColorFilter(
                         Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
@@ -117,9 +115,55 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
                 cardAbsen.isEnabled = false
                 cardAbsen.isClickable = false
             }
+            "Admin" -> {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                    view.cardAbsenChild.background.colorFilter = BlendModeColorFilter(
+                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
+                    view.cardSelfPresenceChild.background.colorFilter = BlendModeColorFilter(
+                        Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)
+                }else{
+                    view.cardAbsenChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
+                    view.cardSelfPresenceChild.background.setColorFilter(Color.parseColor("#BFBFBF"), PorterDuff.Mode.SRC_IN)
+                }
+                cardAbsen.isEnabled = false
+                cardAbsen.isClickable = false
+                cardSelfPresence.isEnabled = false
+                cardSelfPresence.isClickable = false
+            }
         }
     }
 
+    private fun checkUserPresenceStatus(employeeId: String, whenTrue: ()-> Unit, whenFalse: ()-> Unit){
+
+        Log.d("SessionID", employeeId)
+        if(viewModel.checkHeadZonePresence.value != null){
+            viewModel.checkHeadZonePresence.postValue(null)
+        }
+
+        Utility.showLoadingDialog(childFragmentManager, "Loading Check Presence")
+        viewModel.checkHeadZonePresence(employeeId)
+        viewModel.checkHeadZonePresence.observe(viewLifecycleOwner, Observer { response ->
+            when(response){
+                is Resource.Success -> {
+                    Log.d("Success", response.toString())
+                    Utility.dismissLoadingDialog()
+                    response.data.let {
+                        if(it?.data == true){
+                            whenTrue()
+                        }else{
+                            whenFalse()
+                        }
+                    }
+                }
+
+                is Resource.Error -> {
+                    Utility.dismissLoadingDialog()
+                    Toast.makeText(activity, "Error ${response.message}", Toast.LENGTH_LONG).show()
+                    Log.d("Err Get Presence Status", response.message!!)
+                }
+            }
+        })
+    }
 
     private fun setFragmentTypeface(typefaceManager: TypefaceManager?){
         TypefaceHelper.typeface(textView7, typefaceManager?.segoe_ui)

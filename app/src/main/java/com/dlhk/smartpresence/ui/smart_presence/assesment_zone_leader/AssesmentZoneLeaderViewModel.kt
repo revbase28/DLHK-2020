@@ -23,10 +23,10 @@ class AssesmentZoneLeaderViewModel(
     val sweeperAssessmentData: MutableLiveData<Resource<ResponsePostSweeperAssessment>> = MutableLiveData()
     val garbageCollectorDataAssessment: MutableLiveData<Resource<ResponsePostGarbageCollectorAssessment>> = MutableLiveData()
 
-    fun getEmployeePerRegionAndRole(zoneName: String, regionName: String, role: String){
+    fun getEmployeePerRegionAndRole(zoneName: String, regionName: String, role: String, shift: String){
         viewModelScope.launch {
             presenceData.postValue(Resource.Loading())
-            val response = employeeRepo.getPresencePerRegionAndRole(zoneName, regionName, role)
+            val response = employeeRepo.getPresencePerRegionAndRole(zoneName, regionName, role, shift)
             handleEmployeeResponse(response)
         }
     }

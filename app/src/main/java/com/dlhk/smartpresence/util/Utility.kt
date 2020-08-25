@@ -6,27 +6,27 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.hardware.Camera
 import android.os.Environment
+import android.util.Base64
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.dlhk.smartpresence.R
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
+import com.dlhk.smartpresence.util.Constant.Companion.DRAINAGE
+import com.dlhk.smartpresence.util.Constant.Companion.GARBAGE_COLLECTOR
+import com.dlhk.smartpresence.util.Constant.Companion.SWEEPER
 import com.google.android.material.button.MaterialButton
-import com.hsalf.smilerating.SmileRating
+import com.google.gson.GsonBuilder
 import com.hsalf.smileyrating.SmileyRating
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -59,6 +59,14 @@ class Utility {
             return null
         }
 
+        fun decodeBase64(path: String): Bitmap?{
+            val decodedString: ByteArray = Base64.decode(path, Base64.DEFAULT)
+            val decodedByte =
+                BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+
+            return decodedByte
+        }
+
         fun showLoadingDialog(fm: FragmentManager, TAG: String){
             loadingDialog = DelayedProgressDialog()
             loadingDialog.show(fm, TAG)
@@ -73,9 +81,8 @@ class Utility {
 
         fun getCurrentDate(pattern: String): String {
             val sdf = SimpleDateFormat(pattern)
-            val currentDate = sdf.format(Calendar.getInstance().time)
 
-            return currentDate
+            return sdf.format(Calendar.getInstance().time)
         }
 
         suspend fun compressFile(context: Context, file: File) : File{
@@ -84,19 +91,19 @@ class Utility {
             }.await()
         }
 
-        fun showSuccessDialog(mainText: String, subText: String, context: Context){
-            val dialog = MaterialDialog(context)
+        fun showSuccessDialog(mainText: String, subText: String, context: Context, dismissAction: (()-> Unit)? = null ){
+            val materialDialog = MaterialDialog(context)
                 .noAutoDismiss()
                 .customView(R.layout.dialog_success)
                 .cornerRadius(15F)
 
-            dialog.findViewById<TextView>(R.id.mainText).setText(mainText)
-            dialog.findViewById<TextView>(R.id.subText).setText(subText)
-            dialog.findViewById<MaterialButton>(R.id.btn).setOnClickListener {
-                dialog.dismiss()
+            materialDialog.findViewById<TextView>(R.id.mainText).setText(mainText)
+            materialDialog.findViewById<TextView>(R.id.subText).setText(subText)
+            materialDialog.findViewById<MaterialButton>(R.id.btn).setOnClickListener {
+                if(dismissAction == null) materialDialog.dismiss() else dismissAction()
             }
 
-            dialog.show()
+            materialDialog.show()
         }
 
         fun showWarningDialog(mainText: String, subText: String, context: Context){
@@ -114,6 +121,33 @@ class Utility {
             dialog.show()
         }
 
+        fun showSuccessPresenceDialog(context: Context, photoPath: String, name: String, employeeNumber: String, region: String, zone: String, presenceTime: String, role: String){
+            val dialog = MaterialDialog(context)
+                .noAutoDismiss()
+                .customView(R.layout.dialog_success_presence)
+                .cornerRadius(15F)
+
+            dialog.findViewById<TextView>(R.id.textName).text = name
+            dialog.findViewById<TextView>(R.id.textEmployeeNumber).text = employeeNumber
+            dialog.findViewById<TextView>(R.id.textRegion).text = region
+            dialog.findViewById<TextView>(R.id.textZone).text = zone
+            dialog.findViewById<TextView>(R.id.presenceTime).text = presenceTime
+            dialog.findViewById<ImageView>(R.id.foto).setImageBitmap(decodeFile(photoPath))
+            dialog.findViewById<ImageView>(R.id.imageBadge).setImageDrawable(
+                context.getDrawable(when(role){
+                    DRAINAGE -> R.drawable.ic_badge_drainase
+                    SWEEPER -> R.drawable.ic_badge_penyapu
+                    GARBAGE_COLLECTOR -> R.drawable.ic_badge_pengepul_sampah
+                    else -> R.drawable.ic_badge_pengepul_sampah
+                })
+            )
+            dialog.findViewById<MaterialButton>(R.id.btn).setOnClickListener {
+                dialog.dismiss()
+            }
+            
+            dialog.show()
+        }
+
         fun getRatingValue(type: SmileyRating.Type ): Int{
             return when(type){
                 SmileyRating.Type.GREAT -> 100
@@ -126,5 +160,39 @@ class Utility {
                 }
             }
         }
+
+        @Suppress("DEPRECATION")
+        fun isHaveFrontCamera(): Boolean {
+            val cameraInfo = Camera.CameraInfo()
+            val numberOfCamera = Camera.getNumberOfCameras()
+            for (i in 0 until numberOfCamera) {
+                Camera.getCameraInfo(i, cameraInfo)
+                if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        private fun isLocationPermissionGranted(context: Context) =
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+
+        fun invokeLocationAction(context: Context) {
+            if(!Utility.isLocationPermissionGranted(context)){
+                ActivityCompat.requestPermissions(
+                    context as Activity,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                    Constant.LOCATION_REQUEST
+                )
+            }
+        }
+
     }
 }

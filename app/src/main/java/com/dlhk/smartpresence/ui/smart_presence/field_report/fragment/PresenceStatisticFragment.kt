@@ -1,33 +1,34 @@
 package com.dlhk.smartpresence.ui.smart_presence.field_report.fragment
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dlhk.smartpresence.R
+import com.dlhk.smartpresence.adapters.ZonePresenceStatisticRecyclerAdapter
+import com.dlhk.smartpresence.api.response.data.DataZonePresenceStatistic
+import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportActivity
+import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportViewModel
+import com.dlhk.smartpresence.util.Resource
+import com.dlhk.smartpresence.util.SessionManager
+import com.dlhk.smartpresence.util.Utility
+import kotlinx.android.synthetic.main.fragment_presence_statistic.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class PresenceStatisticFragment() : Fragment() {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [PresenceStatisticFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class PresenceStatisticFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    lateinit var viewModel: FieldReportViewModel
+    lateinit var sessionManager: SessionManager
+    lateinit var activity: Activity
+    var presenceStatisticData: MutableList<DataZonePresenceStatistic> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
@@ -38,23 +39,45 @@ class PresenceStatisticFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_presence_statistic, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PresenceStatisticFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PresenceStatisticFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        sessionManager = SessionManager(activity)
+        viewModel = (activity as FieldReportActivity).viewModel
+
+        presenceRecycler.layoutManager = LinearLayoutManager(activity)
+        getPresenceStatistic()
+    }
+
+    private fun getPresenceStatistic(){
+        Utility.showLoadingDialog(childFragmentManager, "Loading get Statistic")
+
+        if(viewModel.zonePresenceStatisticData.value != null) viewModel.zonePresenceStatisticData.postValue(null)
+
+        viewModel.getZonePresenceStatisticPerRegion(sessionManager.getSessionRegion()!!)
+        viewModel.zonePresenceStatisticData.observe(viewLifecycleOwner, Observer { response ->
+            when(response){
+                is Resource.Success -> {
+                    response.data!!.let {
+                        if(presenceStatisticData.size != 0){
+                            presenceStatisticData.clear()
+                        }
+                        presenceStatisticData.addAll(it.data)
+
+                        presenceRecycler.adapter = ZonePresenceStatisticRecyclerAdapter(presenceStatisticData)
+                        Utility.dismissLoadingDialog()
+                    }
+                }
+                is Resource.Error -> {
+                    Utility.dismissLoadingDialog()
+                    Toast.makeText(activity, "Error Retrieving Statistic Data", Toast.LENGTH_LONG).show()
+                    activity.onBackPressed()
                 }
             }
+        })
+    }
+    override fun onAttach(activity: Activity) {
+        super.onAttach(activity)
+        this.activity = activity
     }
 }

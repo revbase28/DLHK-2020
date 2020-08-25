@@ -51,10 +51,7 @@ class LoginActivity : AppCompatActivity() {
                             response.data?.let {
                                 viewModel.saveToSession(
                                     sessionManager,
-                                    it.data.Name,
-                                    it.data.RoleName,
-                                    it.data.ZoneName ?: "",
-                                    it.data.RegionName ?: ""
+                                    it.data
                                 )
 
                                 Utility.dismissLoadingDialog()

@@ -6,9 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dlhk.smartpresence.api.response.ResponseClaimUserData
-import com.dlhk.smartpresence.api.response.ResponseGetEmployee
 import com.dlhk.smartpresence.api.response.ResponseLogin
-import com.dlhk.smartpresence.api.response.data.DataEmployee
+import com.dlhk.smartpresence.api.response.data.DataUser
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.repositories.UserManagementRepo
 import com.dlhk.smartpresence.util.Resource
@@ -45,13 +44,16 @@ class LoginViewModel(
         }
     }
 
-    fun saveToSession(manager: SessionManager, name: String, role: String, zone: String, region: String){
+    fun saveToSession(manager: SessionManager, userData: DataUser){
         viewModelScope.launch {
             manager.apply {
-                saveSessionName(name)
-                saveSessionRole(role)
-                saveSessionRegion(region)
-                saveSessionZone(zone)
+                saveSessionName(userData.Name)
+                saveSessionRole(userData.RoleName)
+                saveSessionRegion(userData.RegionName ?: "" )
+                saveSessionZone(userData.ZoneName ?: "")
+                saveSessionUserId(userData.UserId)
+                saveSessionPhotoString(userData.Photo)
+                saveSessionShift(userData.Shift)
             }
         }
     }

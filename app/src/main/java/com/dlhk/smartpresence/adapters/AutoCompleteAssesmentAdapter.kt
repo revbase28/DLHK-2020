@@ -10,6 +10,7 @@ import android.widget.Filter
 import android.widget.TextView
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
+import com.norbsoft.typefacehelper.TypefaceHelper
 import kotlinx.android.synthetic.main.layout_auto_complete_text_view.view.*
 
 class AutoCompleteAssesmentAdapter(
@@ -38,6 +39,7 @@ class AutoCompleteAssesmentAdapter(
             textName.text = "${employee.employeeName} - ${employee.employeeNumber}"
         }
 
+        TypefaceHelper.typeface(view)
         return view!!
     }
 

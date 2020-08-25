@@ -63,8 +63,9 @@ class SweeperAssesmentFragment : Fragment() {
         viewModel = (activity as AssesmentZoneLeaderActivity).viewModel
         sessionManager = SessionManager(activity as AssesmentZoneLeaderActivity)
         if(employeeDataList.size == 0){
+            Utility.showLoadingDialog(childFragmentManager, "Loading EM Sweeper")
             getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!,
-                SWEEPER
+                SWEEPER, sessionManager.getSessionShift()
             )
         }
 
@@ -120,6 +121,9 @@ class SweeperAssesmentFragment : Fragment() {
                                 clearInput()
                                 etName.setText("")
                                 Utility.dismissLoadingDialog()
+                                getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!,
+                                    SWEEPER, sessionManager.getSessionShift()
+                                )
                                 Utility.showSuccessDialog("Data berhasil disimpan", "Pertahankan kualitas kerja dan selalu jaga kesehatan", activity)
                             }
                             is Resource.Error -> {
@@ -136,9 +140,8 @@ class SweeperAssesmentFragment : Fragment() {
         }
     }
 
-    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
-        Utility.showLoadingDialog(childFragmentManager, "Loading EM Sweeper")
-        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
+    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String, shift: String){
+        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role, shift)
         viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
             when(response){
                 is Resource.Success ->{

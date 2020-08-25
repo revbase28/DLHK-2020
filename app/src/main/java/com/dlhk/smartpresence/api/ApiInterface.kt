@@ -19,10 +19,11 @@ interface ApiInterface {
     suspend fun claimUserData(
         @Header("Authorization") accessToken: String): Response<ResponseClaimUserData>
 
-    @GET("employee/{zoneName}/{regionName}")
+    @GET("employee/{zoneName}/{regionName}/{shift}")
     suspend fun getEmployeePerRegion(
         @Path(value="zoneName", encoded = true) zoneName: String,
-        @Path(value="regionName", encoded = true) regionName: String
+        @Path(value="regionName", encoded = true) regionName: String,
+        @Path(value="shift", encoded = true) shift: String
     ): Response<ResponseGetEmployee>
 
     @GET("employee/zone/{regionName}")
@@ -30,11 +31,12 @@ interface ApiInterface {
         @Path(value="regionName", encoded = true) regionName: String
     ): Response<ResponseGetEmployee>
 
-    @GET("presence/{zoneName}/{regionName}/{role}")
+    @GET("presence/{zoneName}/{regionName}/{role}/{shift}")
     suspend fun getPresenceDataPerRegionAndRole(
         @Path(value="zoneName", encoded = true) zoneName: String,
         @Path(value="regionName", encoded = true) regionName: String,
-        @Path(value="role", encoded = true) role: String
+        @Path(value="role", encoded = true) role: String,
+        @Path(value="shift", encoded = true) shift: String
     ): Response<ResponseGetPresence>
 
     @GET("presence/{regionName}/headzone")
@@ -46,7 +48,7 @@ interface ApiInterface {
     @POST("presence")
     suspend fun sendPresence(
         @Part("employeeId") employeeId:Long,
-        @Part("dateOfPresence") presenceDate: RequestBody,
+        @Part("shift") shift: RequestBody,
         @Part("coordinate") coordinate: RequestBody,
         @Part livePhoto: MultipartBody.Part
     ): Response<ResponsePresence>
@@ -55,7 +57,7 @@ interface ApiInterface {
     @POST("leave")
     suspend fun sendPermit(
         @Field("dateOfLeave") dateOfLeave: String,
-        @Field("description") desc: String = "",
+        @Field("description") desc: String,
         @Field("employeeId") employeeId: Long,
         @Field("leaveStatus") leaveStatus: String
     ): Response<ResponsePermit>
@@ -108,5 +110,24 @@ interface ApiInterface {
         @Field("thirdSession") reportIII: Int,
         @Field("typeZone") typeZone: String
     ): Response<ResponsePostZoneHeadAssessment>
+
+    @GET("presence/check/{employeeId}")
+    suspend fun getHeadZonePresence(
+        @Path(value="employeeId", encoded = true) employeeId: String
+    ): Response<ResponseCheckHeadZonePresence>
+
+    @GET("presence/zone/{regionName}")
+    suspend fun getZonePresenceStatisticOnRegion(
+        @Path(value="regionName", encoded = true) regionName: String
+    ): Response<ResponseGetPresenceStatisticZoneOnRegion>
+
+    @GET("presence/resume/{zoneName}/{regionName}")
+    suspend fun getIndividualPresenceStatistic(
+        @Path(value = "zoneName", encoded = true) zoneName: String,
+        @Path(value="regionName", encoded = true) regionName: String
+    ):Response<ResponseGetIndividualPresenceStatistic>
+
+    @GET("presence/region")
+    suspend fun getRegionPresenceStatistic():Response<ResponseGetRegionPresenceStatistic>
 
 }

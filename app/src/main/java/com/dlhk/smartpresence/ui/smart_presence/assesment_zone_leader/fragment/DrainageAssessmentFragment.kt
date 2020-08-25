@@ -49,7 +49,8 @@ class DrainageAssesmentFragment : Fragment() {
         viewModel = (activity as AssesmentZoneLeaderActivity).viewModel
         sessionManager = SessionManager(activity as AssesmentZoneLeaderActivity)
         if(employeeDataList.size == 0){
-            getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!, DRAINAGE)
+            Utility.showLoadingDialog(childFragmentManager, "Loading EM Drainage")
+            getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!, DRAINAGE, sessionManager.getSessionShift())
         }
 
         var presenceId: Long = 0
@@ -103,6 +104,7 @@ class DrainageAssesmentFragment : Fragment() {
                                 clearInput()
                                 etName.setText("")
                                 Utility.dismissLoadingDialog()
+                                getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!, DRAINAGE, sessionManager.getSessionShift())
                                 Utility.showSuccessDialog("Data berhasil disimpan", "Pertahankan kualitas kerja dan selalu jaga kesehatan", activity)
                             }
                             is Resource.Error -> {
@@ -120,9 +122,8 @@ class DrainageAssesmentFragment : Fragment() {
 
     }
 
-    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String){
-        Utility.showLoadingDialog(childFragmentManager, "Loading EM Drainage")
-        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role)
+    private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String, shift: String){
+        viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role, shift)
         viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
             when(response){
                 is Resource.Success ->{
