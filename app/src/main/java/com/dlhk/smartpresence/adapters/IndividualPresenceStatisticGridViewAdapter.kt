@@ -14,7 +14,7 @@ import com.dlhk.smartpresence.api.response.data.DataIndividualPresenceStatistic
 import com.dlhk.smartpresence.util.Utility
 import com.norbsoft.typefacehelper.TypefaceHelper
 
-class IndividualStatisticGridViewAdapter(
+class IndividualPresenceStatisticGridViewAdapter(
     val context: Context,
     val statisticData: List<DataIndividualPresenceStatistic>
 ): BaseAdapter() {

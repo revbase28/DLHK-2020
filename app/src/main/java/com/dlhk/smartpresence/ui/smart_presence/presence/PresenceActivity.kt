@@ -1,12 +1,10 @@
 package com.dlhk.smartpresence.ui.smart_presence.presence
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
@@ -18,14 +16,12 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dlhk.smartpresence.EmployeeSingleton
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteEmployeeAdapter
 import com.dlhk.smartpresence.adapters.AutoCompleteZoneLeaderAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AttendanceRepo
@@ -33,7 +29,6 @@ import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.util.Constant.Companion.LOCATION_REQUEST
 import com.dlhk.smartpresence.util.Constant.Companion.REQUEST_IMAGE_CAPTURE
-import com.dlhk.smartpresence.util.DelayedProgressDialog
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.Utility
@@ -49,7 +44,6 @@ class PresenceActivity : AppCompatActivity() {
 
     lateinit var viewModel: PresenceViewModel
     lateinit var photoPath : String
-    lateinit var NowsDate : String
     lateinit var sendReadyPhotoFile : File
     lateinit var sessionManager: SessionManager
     lateinit var employeeData: ArrayList<DataEmployee>
@@ -221,6 +215,7 @@ class PresenceActivity : AppCompatActivity() {
         etWilayah.setText("")
         etZone.setText("")
         etBagian.setText("")
+        etCoordinate.setText("")
     }
 
     private fun verifyInput(role: String): Boolean{
@@ -334,7 +329,7 @@ class PresenceActivity : AppCompatActivity() {
 
                     val autoCompleteAdapter = when(sessionManager.getSessionRole()){
                         "Koor Wilayah" -> AutoCompleteZoneLeaderAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
-                        else -> AutoCompleteAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
+                        else -> AutoCompleteEmployeeAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
                     }
 
                     etName.setAdapter(autoCompleteAdapter)

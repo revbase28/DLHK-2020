@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,8 +37,8 @@ class LoginActivity : AppCompatActivity() {
 
         login.setOnClickListener {
 
-            val username = nik.text.toString()
-            val password = password.text.toString()
+            val username = textUsername.text.toString()
+            val password = textPassword.text.toString()
 
             if(username.isNotBlank() && password.isNotBlank()){
                 if(viewModel.loginData.value != null) viewModel.loginData.value = null
@@ -65,7 +66,18 @@ class LoginActivity : AppCompatActivity() {
 
                         is Resource.Error -> {
                             response.message?.let {
-                                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                                when(it){
+                                    "Bad Request" -> {
+                                        textError.visibility = View.VISIBLE
+                                        textError.text = "Username atau password salah"
+                                        textPassword.setText("")
+                                    }
+
+                                    else -> {
+                                        textError.visibility = View.VISIBLE
+                                        textError.text = it
+                                    }
+                                }
                             }
                             Utility.dismissLoadingDialog()
                         }

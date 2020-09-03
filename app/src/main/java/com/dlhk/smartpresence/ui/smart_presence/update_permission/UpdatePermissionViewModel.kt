@@ -45,6 +45,22 @@ class UpdatePermissionViewModel(
         }
     }
 
+    fun getHeadZonePerRegion(regionName: String){
+        viewModelScope.launch {
+            employeeData.postValue(Resource.Loading())
+            val getEmployeeResponse = employeeRepo.getHeadZonePerRegion(regionName)
+            handleGetEmployeeResponse(getEmployeeResponse)
+        }
+    }
+
+    fun getRegionCoordinator(){
+        viewModelScope.launch {
+            employeeData.postValue(Resource.Loading())
+            val getEmployeeResponse = employeeRepo.getRegionCoordinator()
+            handleGetEmployeeResponse(getEmployeeResponse)
+        }
+    }
+
     private fun handleGetEmployeeResponse(response: Response<ResponseGetEmployee>){
         if(response.isSuccessful){
             response.body()?.let { employeeResult ->

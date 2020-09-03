@@ -2,7 +2,9 @@ package com.dlhk.smartpresence.util
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -21,7 +23,6 @@ import com.dlhk.smartpresence.util.Constant.Companion.DRAINAGE
 import com.dlhk.smartpresence.util.Constant.Companion.GARBAGE_COLLECTOR
 import com.dlhk.smartpresence.util.Constant.Companion.SWEEPER
 import com.google.android.material.button.MaterialButton
-import com.google.gson.GsonBuilder
 import com.hsalf.smileyrating.SmileyRating
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.CoroutineScope
@@ -135,9 +136,9 @@ class Utility {
             dialog.findViewById<ImageView>(R.id.foto).setImageBitmap(decodeFile(photoPath))
             dialog.findViewById<ImageView>(R.id.imageBadge).setImageDrawable(
                 context.getDrawable(when(role){
-                    DRAINAGE -> R.drawable.ic_badge_drainase
-                    SWEEPER -> R.drawable.ic_badge_penyapu
-                    GARBAGE_COLLECTOR -> R.drawable.ic_badge_pengepul_sampah
+                    "Drainase" -> R.drawable.ic_badge_drainase
+                    "Penyapu" -> R.drawable.ic_badge_penyapu
+                    "Angkut Sampah" -> R.drawable.ic_badge_pengepul_sampah
                     else -> R.drawable.ic_badge_pengepul_sampah
                 })
             )
@@ -192,6 +193,24 @@ class Utility {
                     Constant.LOCATION_REQUEST
                 )
             }
+        }
+
+        fun showLogoutConfirmationDialog(context: Context, logout: ()-> Unit){
+            val builder =
+                AlertDialog.Builder(context)
+
+            builder.setTitle("Konfirmasi")
+                .setMessage("Anda yakin ingin logout ?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton( android.R.string.yes) { dialogInterface, i ->
+                    logout()
+                }
+                .setNegativeButton( android.R.string.no ) { dialogInterface, i ->
+                    dialogInterface.dismiss()
+                }
+
+            val alertDialog = builder.create()
+            alertDialog.show()
         }
 
     }

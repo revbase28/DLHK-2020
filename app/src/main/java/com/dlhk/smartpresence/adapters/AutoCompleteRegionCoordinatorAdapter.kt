@@ -11,9 +11,8 @@ import android.widget.TextView
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.norbsoft.typefacehelper.TypefaceHelper
-import kotlinx.android.synthetic.main.layout_auto_complete_text_view.view.*
 
-class AutoCompleteAdapter(
+class AutoCompleteRegionCoordinatorAdapter(
     val mContext: Context,
     val resourceId: Int,
     val dataEmployee: ArrayList<DataEmployee>
@@ -36,7 +35,7 @@ class AutoCompleteAdapter(
         val employee: DataEmployee? = dataEmployee[position]
         if(employee != null){
             val textName =  view?.findViewById(R.id.textName) as TextView
-            textName.text = "${employee.name} - ${employee.employeeNumber}"
+            textName.text = "${employee.name} - ${employee.region}"
         }
 
         TypefaceHelper.typeface(view)

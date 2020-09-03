@@ -2,7 +2,6 @@ package com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
 import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
@@ -22,7 +20,6 @@ import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZ
 import com.dlhk.smartpresence.util.*
 import com.dlhk.smartpresence.util.Constant.Companion.SWEEPER
 import com.hsalf.smileyrating.SmileyRating
-import kotlinx.android.synthetic.main.fragment_assessment_drainage.*
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.*
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etName
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etNik

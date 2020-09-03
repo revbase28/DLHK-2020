@@ -1,11 +1,5 @@
 package com.dlhk.smartpresence.api.response.data
 
-import android.os.Parcel
-import android.os.Parcelable
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import java.io.Serializable
-
 data class DataEmployee(
     val age: Int,
     val bank: String,
@@ -15,10 +9,14 @@ data class DataEmployee(
     val lastContract: String,
     val locationContract: String,
     val name: String,
+    val perform: Int,
     val personId: Int,
     val region: String,
     val regionId: Int,
     val role: String,
     val roleId: Int,
+    val shift: String,
+    val smartPresence: Int,
     val zone: String,
-    val zoneId: Int )
+    val zoneId: Int
+)

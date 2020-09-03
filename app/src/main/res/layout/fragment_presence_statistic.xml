@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.smart_presence.field_report.fragment.PresenceStatisticFragment">
+    tools:context=".ui.smart_presence.field_report.fragment.ZonePresenceStatisticFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

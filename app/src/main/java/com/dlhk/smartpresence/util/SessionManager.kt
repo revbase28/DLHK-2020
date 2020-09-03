@@ -3,7 +3,9 @@ package com.dlhk.smartpresence.util
 import android.content.Context
 import android.content.SharedPreferences
 import com.dlhk.smartpresence.util.Constant.Companion.SESSION
+import com.dlhk.smartpresence.util.Constant.Companion.SESSION_BOOLEAN
 import com.dlhk.smartpresence.util.Constant.Companion.SESSION_ID
+import com.dlhk.smartpresence.util.Constant.Companion.SESSION_LOGIN_DATE
 import com.dlhk.smartpresence.util.Constant.Companion.SESSION_NAME
 import com.dlhk.smartpresence.util.Constant.Companion.SESSION_PHOTO
 import com.dlhk.smartpresence.util.Constant.Companion.SESSION_REGION
@@ -69,6 +71,20 @@ class SessionManager(val context: Context) {
         }
     }
 
+    fun saveSessionBoolean(isLogin: Boolean){
+        editor.apply {
+            putBoolean(SESSION_BOOLEAN, isLogin)
+            commit()
+        }
+    }
+
+    fun saveSessionLoginDate(date: String){
+        editor.apply {
+            putString(SESSION_LOGIN_DATE, date)
+            commit()
+        }
+    }
+
     fun getSessionName() : String? { return preferences.getString(SESSION_NAME, "")}
     fun getSessionRole() : String? { return preferences.getString(SESSION_ROLE, "")}
     fun getSessionZone() : String? {return preferences.getString(SESSION_ZONE, "-")}
@@ -76,4 +92,7 @@ class SessionManager(val context: Context) {
     fun getSessionId() : String? { return preferences.getString(SESSION_ID, "-")}
     fun getSessionPhoto(): String { return preferences.getString(SESSION_PHOTO, "").toString()}
     fun getSessionShift(): String { return preferences.getString(SESSION_SHIFT, "").toString()}
+    fun getSessionIsLogin(): Boolean { return preferences.getBoolean(SESSION_BOOLEAN, false)}
+    fun getSessionLoginDate(): String { return preferences.getString(SESSION_LOGIN_DATE, "").toString()}
+
 }

@@ -1,4 +1,4 @@
-package com.dlhk.smartpresence.ui.smart_presence.region_presence_statistic
+package com.dlhk.smartpresence.ui.smart_presence.zone_presence_statistic
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

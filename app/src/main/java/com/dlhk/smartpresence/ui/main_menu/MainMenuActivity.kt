@@ -1,13 +1,16 @@
 package com.dlhk.smartpresence.ui.main_menu
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.PopupMenu
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.repositories.AttendanceRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
+import com.dlhk.smartpresence.ui.login.LoginActivity
 import com.dlhk.smartpresence.ui.main_menu.fragment.InventoryMenu
 import com.dlhk.smartpresence.ui.main_menu.fragment.SmartPresenceMenu
 import com.dlhk.smartpresence.util.SessionManager
@@ -42,6 +45,24 @@ class MainMenuActivity : AppCompatActivity() {
 
 
         TypefaceManager(this)
+
+        foto.setOnClickListener {
+            val dropDownMenu = PopupMenu(this, foto).apply {
+                menuInflater.inflate(R.menu.dropdown_menu, this.menu)
+                setOnMenuItemClickListener {
+                    Utility.showLogoutConfirmationDialog(this@MainMenuActivity
+                    ) { sessionManager.editor.clear().commit()
+                        sessionManager.saveSessionBoolean(false)
+                        val intent = Intent(this@MainMenuActivity, LoginActivity::class.java).apply {
+                            startActivity(this)
+                            finish()
+                        }}
+                    return@setOnMenuItemClickListener true
+                }
+            }
+
+            dropDownMenu.show()
+        }
 
         smartPresence.setOnClickListener {
             showSmartPresenceMenu()

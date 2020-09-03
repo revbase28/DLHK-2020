@@ -3,23 +3,17 @@ package com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AssessmentRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.DrainageHeadAssesmentFragment
 import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssesmentFragment
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
-import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.TypefaceManager
-import com.dlhk.smartpresence.util.Utility
 import kotlinx.android.synthetic.main.activity_assesment_region_coordinator.*
 
 class AssessmentRegionCoordinatorActivity : AppCompatActivity() {

@@ -12,6 +12,7 @@ import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.repositories.UserManagementRepo
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
+import com.dlhk.smartpresence.util.Utility
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -54,6 +55,8 @@ class LoginViewModel(
                 saveSessionUserId(userData.UserId)
                 saveSessionPhotoString(userData.Photo)
                 saveSessionShift(userData.Shift)
+                saveSessionBoolean(true)
+                saveSessionLoginDate(Utility.getCurrentDate("yyyy-dd-MM"))
             }
         }
     }

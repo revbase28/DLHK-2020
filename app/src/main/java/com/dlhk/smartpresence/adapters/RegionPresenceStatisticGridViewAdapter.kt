@@ -11,16 +11,17 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.api.response.data.DataRegionPresenceStatistic
-import com.dlhk.smartpresence.ui.smart_presence.region_presence_statistic.ZoneOnRegionPresenceStatisticActivity
+import com.dlhk.smartpresence.ui.smart_presence.zone_performance_statistic.ZonePerformanceStatisticActivity
+import com.dlhk.smartpresence.ui.smart_presence.zone_presence_statistic.ZoneOnRegionPresenceStatisticActivity
 import com.norbsoft.typefacehelper.TypefaceHelper
 
-class RegionStatisticGridViewAdapter(
+class RegionPresenceStatisticGridViewAdapter(
     val context: Context,
     val statisticData: List<DataRegionPresenceStatistic>
 ): BaseAdapter() {
 
     init {
-        Log.d("GV", "Adapter Attached")
+        Log.d("GV Presence", "Adapter Attached")
     }
     inner class ViewHolder{
         lateinit var textPercentage: TextView

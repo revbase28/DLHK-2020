@@ -1,15 +1,13 @@
 package com.dlhk.smartpresence.ui.smart_presence.individual_presence_statistic
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.IndividualStatisticGridViewAdapter
+import com.dlhk.smartpresence.adapters.IndividualPresenceStatisticGridViewAdapter
 import com.dlhk.smartpresence.repositories.StatisticRepo
-import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportActivity
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.TypefaceManager
@@ -35,7 +33,7 @@ class IndividualPresenceStatisticActivity : AppCompatActivity() {
         zoneName = intent.getStringExtra("zoneName")
         regionName = intent.getStringExtra("regionName")
 
-        textActivityTitle.text = "Statistik Individu ${zoneName}"
+        textActivityTitle.text = "Statistik Absensi ${zoneName}"
         gridStatistic.isExpanded = true
 
         if(zoneName != null && regionName != null){
@@ -57,7 +55,7 @@ class IndividualPresenceStatisticActivity : AppCompatActivity() {
         viewModel.individualStatisticData.observe(this, Observer { response ->
             when(response){
                 is Resource.Success -> {
-                    gridStatistic.adapter = IndividualStatisticGridViewAdapter(this, response.data!!.data)
+                    gridStatistic.adapter = IndividualPresenceStatisticGridViewAdapter(this, response.data!!.data)
                     gridStatistic.verticalSpacing = gridStatistic.horizontalSpacing
 
                     Utility.dismissLoadingDialog()

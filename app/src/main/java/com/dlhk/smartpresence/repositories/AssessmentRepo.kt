@@ -1,6 +1,8 @@
 package com.dlhk.smartpresence.repositories
 
 import com.dlhk.smartpresence.api.RetrofitInstance
+import com.dlhk.smartpresence.api.response.ResponsePostZoneHeadAssessment
+import retrofit2.Response
 import retrofit2.http.Field
 
 class AssessmentRepo {
@@ -46,4 +48,13 @@ class AssessmentRepo {
         typeZone: String
     ) = RetrofitInstance.api.sendHeadOfZoneAssessment(presenceId, cleanliness, completeness, dataOfGarbage, disciplinePresence, reportI, reportII, reportIII, typeZone)
 
+    suspend fun sendRegionCoordinatorAssessment(
+        employeeId: Long,
+        percentOfPresence: Int,
+        percentOfReport: Int,
+        percentOfCompletion: Int,
+        percentOfSatisfaction: Int,
+        cleanliness: Int,
+        dataOfGarbage: Int
+    ) = RetrofitInstance.api.sendRegionCoordinatorAssessment(employeeId, percentOfPresence, percentOfReport, percentOfCompletion, percentOfSatisfaction, cleanliness, dataOfGarbage)
 }

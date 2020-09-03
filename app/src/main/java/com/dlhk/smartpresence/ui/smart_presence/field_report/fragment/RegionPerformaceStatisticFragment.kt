@@ -6,26 +6,24 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.ZonePresenceStatisticRecyclerAdapter
-import com.dlhk.smartpresence.api.response.data.DataZonePresenceStatistic
+import com.dlhk.smartpresence.adapters.RegionPerformanceStatisticGridViewAdapter
+import com.dlhk.smartpresence.api.response.data.DataRegionPerformanceStatistic
 import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportActivity
 import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportViewModel
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
-import com.dlhk.smartpresence.util.Utility
-import kotlinx.android.synthetic.main.fragment_presence_statistic.*
+import kotlinx.android.synthetic.main.fragment_region_performace_statistic.*
 
-class PresenceStatisticFragment() : Fragment() {
+
+class RegionPerformaceStatisticFragment : Fragment() {
 
     lateinit var viewModel: FieldReportViewModel
     lateinit var sessionManager: SessionManager
     lateinit var activity: Activity
-    var presenceStatisticData: MutableList<DataZonePresenceStatistic> = ArrayList()
+    var performanceStatisticData: MutableList<DataRegionPerformanceStatistic> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +33,7 @@ class PresenceStatisticFragment() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_presence_statistic, container, false)
+        return inflater.inflate(R.layout.fragment_region_performace_statistic, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,37 +42,40 @@ class PresenceStatisticFragment() : Fragment() {
         sessionManager = SessionManager(activity)
         viewModel = (activity as FieldReportActivity).viewModel
 
-        presenceRecycler.layoutManager = LinearLayoutManager(activity)
-        getPresenceStatistic()
+        gridStatistic.isExpanded = true
+        getPerformanceStatistic()
     }
 
-    private fun getPresenceStatistic(){
-        Utility.showLoadingDialog(childFragmentManager, "Loading get Statistic")
+    private fun getPerformanceStatistic(){
+        //Utility.showLoadingDialog(childFragmentManager, "Loading get Perform Statistic")
 
-        if(viewModel.zonePresenceStatisticData.value != null) viewModel.zonePresenceStatisticData.postValue(null)
+        if(viewModel.regionPerformanceStatisticData.value != null) viewModel.regionPerformanceStatisticData.postValue(null)
 
-        viewModel.getZonePresenceStatisticPerRegion(sessionManager.getSessionRegion()!!)
-        viewModel.zonePresenceStatisticData.observe(viewLifecycleOwner, Observer { response ->
+        viewModel.getRegionPerformanceStatistic()
+        viewModel.regionPerformanceStatisticData.observe(viewLifecycleOwner, Observer { response ->
             when(response){
                 is Resource.Success -> {
                     response.data!!.let {
-                        if(presenceStatisticData.size != 0){
-                            presenceStatisticData.clear()
+                        if(performanceStatisticData.size != 0){
+                            performanceStatisticData.clear()
                         }
-                        presenceStatisticData.addAll(it.data)
+                        performanceStatisticData.addAll(it.data)
 
-                        presenceRecycler.adapter = ZonePresenceStatisticRecyclerAdapter(presenceStatisticData)
-                        Utility.dismissLoadingDialog()
+                        gridStatistic.adapter = RegionPerformanceStatisticGridViewAdapter(activity, performanceStatisticData)
+                        gridStatistic.verticalSpacing = gridStatistic.horizontalSpacing
+
+                        //Utility.dismissLoadingDialog()
                     }
                 }
                 is Resource.Error -> {
-                    Utility.dismissLoadingDialog()
+                    //Utility.dismissLoadingDialog()
                     Toast.makeText(activity, "Error Retrieving Statistic Data", Toast.LENGTH_LONG).show()
                     activity.onBackPressed()
                 }
             }
         })
     }
+
     override fun onAttach(activity: Activity) {
         super.onAttach(activity)
         this.activity = activity

@@ -9,8 +9,9 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.ViewPagerAdapter
 import com.dlhk.smartpresence.repositories.StatisticRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
-import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.PerformanceStatisticFragment
-import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.PresenceStatisticFragment
+import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.ZonePerformanceStatisticFragment
+import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.ZonePresenceStatisticFragment
+import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.RegionPerformaceStatisticFragment
 import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.RegionPresenceStatisticFragment
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.TypefaceManager
@@ -47,13 +48,13 @@ class FieldReportActivity : AppCompatActivity() {
     private fun populateList(){
         when(sessionManager.getSessionRole()){
             "Koor Wilayah" -> {
-                fragments.add(PresenceStatisticFragment())
-                fragments.add(PerformanceStatisticFragment())
+                fragments.add(ZonePresenceStatisticFragment())
+                fragments.add(ZonePerformanceStatisticFragment())
             }
 
             "Admin" -> {
                 fragments.add(RegionPresenceStatisticFragment())
-                fragments.add(PerformanceStatisticFragment())
+                fragments.add(RegionPerformaceStatisticFragment())
             }
         }
 

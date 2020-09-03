@@ -63,7 +63,6 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         }
 
         cardSelfPresence.setOnClickListener {
-            Toast.makeText(activity, "Clicked", Toast.LENGTH_SHORT).show()
             checkUserPresenceStatus(sessionManager.getSessionId()!!,
                 {Utility.showWarningDialog("Anda Sudah Absen", "Silahkan lanjutkan kegiatan hari ini", activity)},
                 {startActivityTo(SelfPresenceActivity::class.java)})

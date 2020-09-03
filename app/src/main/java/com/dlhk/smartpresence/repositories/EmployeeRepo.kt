@@ -8,6 +8,12 @@ class EmployeeRepo(
     suspend fun getEmployeePerRegion(zoneName: String, regionName: String, shift: String) =
         RetrofitInstance.api.getEmployeePerRegion(zoneName, regionName, shift)
 
+    suspend fun getHeadZonePerRegion(regionName: String) =
+        RetrofitInstance.api.getHeadZonePerRegion(regionName)
+
+    suspend fun getRegionCoordinator() =
+        RetrofitInstance.api.getRegionCoordinator()
+
     suspend fun getPresencePerRegionAndRole(zoneName: String, regionName: String, role: String, shift: String) =
         RetrofitInstance.api.getPresenceDataPerRegionAndRole(zoneName, regionName, role, shift)
 
@@ -16,5 +22,8 @@ class EmployeeRepo(
 
     suspend fun getPresenceHeadOfZonePerRegion(regionName: String) =
         RetrofitInstance.api.getPresenceDataHeadOfZonePerRegion(regionName)
+
+    suspend fun getPresenceRegionCoordinator() =
+        RetrofitInstance.api.getPresenceRegionCoordinator()
 
 }

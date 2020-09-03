@@ -1,9 +1,8 @@
-package com.dlhk.smartpresence.ui.smart_presence.region_presence_statistic
+package com.dlhk.smartpresence.ui.smart_presence.zone_presence_statistic
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.fragment.app.replace
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,12 +10,9 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.ZonePresenceStatisticRecyclerAdapter
 import com.dlhk.smartpresence.api.response.data.DataZonePresenceStatistic
 import com.dlhk.smartpresence.repositories.StatisticRepo
-import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.PresenceStatisticFragment
-import com.dlhk.smartpresence.ui.smart_presence.field_report.fragment.RegionPresenceStatisticFragment
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.Utility
 import kotlinx.android.synthetic.main.activity_region_presence_statistic.*
-import kotlinx.android.synthetic.main.fragment_presence_statistic.*
 
 class ZoneOnRegionPresenceStatisticActivity : AppCompatActivity() {
 
@@ -36,6 +32,10 @@ class ZoneOnRegionPresenceStatisticActivity : AppCompatActivity() {
         zoneStatisticRecycler.layoutManager = LinearLayoutManager(this)
 
         getPresenceStatistic()
+
+        btnBack.setOnClickListener {
+            onBackPressed()
+        }
 
     }
 

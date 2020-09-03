@@ -50,6 +50,10 @@ class SelfPresenceActivity : AppCompatActivity() {
             showGPSDisabledAlertToUser()
         }
 
+        btnBack.setOnClickListener {
+            onBackPressed()
+        }
+
         imageViewFoto.setOnClickListener {
             takePicture()
         }
@@ -176,5 +180,10 @@ class SelfPresenceActivity : AppCompatActivity() {
             startActivity(this)
             finish()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Utility.invokeLocationAction(this)
     }
 }

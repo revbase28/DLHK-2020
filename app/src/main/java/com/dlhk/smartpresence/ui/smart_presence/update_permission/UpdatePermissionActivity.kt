@@ -10,12 +10,13 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dlhk.smartpresence.EmployeeSingleton
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.AutoCompleteAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteEmployeeAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteRegionCoordinatorAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteZoneLeaderAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AttendanceRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
@@ -26,9 +27,6 @@ import com.dlhk.smartpresence.util.Constant.Companion.DIALOG_PERMIT_ALFA
 import com.dlhk.smartpresence.util.Constant.Companion.DIALOG_PERMIT_LEAVE
 import com.dlhk.smartpresence.util.Constant.Companion.DIALOG_PERMIT_SICK
 import com.dlhk.smartpresence.util.Constant.Companion.PERMIT
-import kotlinx.android.synthetic.main.activity_presence.*
-import kotlinx.android.synthetic.main.activity_presence.imageViewFoto
-import kotlinx.android.synthetic.main.activity_submit_equipment.*
 import kotlinx.android.synthetic.main.activity_update_permission.*
 import kotlinx.android.synthetic.main.activity_update_permission.btnBack
 import kotlinx.android.synthetic.main.activity_update_permission.btnSubmit
@@ -47,6 +45,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
     lateinit var sessionManager: SessionManager
     lateinit var employeeData: ArrayList<DataEmployee>
     lateinit var permitStatus: String
+    lateinit var role: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,10 +56,11 @@ class UpdatePermissionActivity : AppCompatActivity() {
         val viewModelFactory = UpdatePermissionViewModelFactory(attendanceRepo, employeeRepo)
         viewModel = ViewModelProvider(this, viewModelFactory).get(UpdatePermissionViewModel::class.java)
         sessionManager = SessionManager(this)
-
+        role = sessionManager.getSessionRole()!!
 
         Utility.showLoadingDialog(supportFragmentManager, "Get EM Permission Loading")
-        getEmployeeFromApi()
+        getEmployeeFromApi(role)
+        if(role == "Admin") etZone.visibility = View.GONE; textInputLayoutZona.visibility = View.GONE
 
         var employeeId: Long = 0
         employeeData = EmployeeSingleton.getEmployeeData()
@@ -69,7 +69,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
             val selectedItem = adapterView.getItemAtPosition(position) as DataEmployee
             etNik.setText(selectedItem.employeeNumber)
             etWilayah.setText(selectedItem.region)
-            etZone.setText(selectedItem.zone)
+            if(role != "Admin") etZone.setText(selectedItem.zone)
             employeeId = selectedItem.employeeId
         }
 
@@ -95,7 +95,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
         btnSubmit.setOnClickListener {
             val nowsDate = Utility.getCurrentDate("yyyy-MM-dd")
 
-            if(verifyInput()){
+            if(verifyInput(role)){
                 if(viewModel.permitData.value != null) viewModel.permitData.value = null
 
                 val reason = if(etStatusIzin.text.toString() == "Alfa") "" else etJenisIzin.text.toString()
@@ -107,7 +107,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
                             Utility.dismissLoadingDialog()
                             etName.setText("")
                             Utility.showSuccessDialog("Izin Terkirim", "Izin anda telah diajukan", this)
-                            getEmployeeFromApi()
+                            getEmployeeFromApi(role)
                         }
 
                         is Resource.Error ->{
@@ -121,19 +121,34 @@ class UpdatePermissionActivity : AppCompatActivity() {
         }
     }
 
-    private fun getEmployeeFromApi(){
+    private fun getEmployeeFromApi(role: String){
         if(viewModel.employeeData.value != null){
             viewModel.employeeData.postValue(null)
         }
 
-        viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!, sessionManager.getSessionShift())
+        when(role){
+            "Kepala Zona" -> {
+                viewModel.getEmployeePerRegion(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!, sessionManager.getSessionShift())
+            }
+            "Koor Wilayah" -> {
+                viewModel.getHeadZonePerRegion(sessionManager.getSessionRegion()!!)
+            }
+            "Admin" -> {
+                viewModel.getRegionCoordinator()
+            }
+        }
         viewModel.employeeData.observe(this, Observer { employeeResponse ->
             when (employeeResponse) {
                 is Resource.Success -> {
                     employeeResponse.data.let {
                         EmployeeSingleton.insertEmployeeData(it!!.data)
                     }
-                    val autoCompleteAdapter = AutoCompleteAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)
+                    val autoCompleteAdapter = when(role){
+                        "Kepala Zona" -> {AutoCompleteEmployeeAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
+                        "Koor Wilayah" -> {AutoCompleteZoneLeaderAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
+                        "Admin" -> {AutoCompleteRegionCoordinatorAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
+                        else -> {AutoCompleteEmployeeAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
+                    }
                     etName.setAdapter(autoCompleteAdapter)
                     Utility.dismissLoadingDialog()
                 }
@@ -148,65 +163,122 @@ class UpdatePermissionActivity : AppCompatActivity() {
         })
     }
 
-    private fun verifyInput(): Boolean{
-        if(etName.text.isNullOrBlank()
-            || etNik.text.isNullOrBlank()
-            || etWilayah.text.isNullOrBlank()
-            || etZone.text.isNullOrBlank()
-            || etStatusIzin.text.isNullOrBlank()){
+    private fun verifyInput(role: String): Boolean{
 
-            if(etName.text.isNullOrBlank()){
-                textInputLayoutName.error = "Nama harus diisi"
-            }else{
-                textInputLayoutName.error = null
-            }
+        if(role != "Admin"){
+            if(etName.text.isNullOrBlank()
+                || etNik.text.isNullOrBlank()
+                || etWilayah.text.isNullOrBlank()
+                || etZone.text.isNullOrBlank()
+                || etStatusIzin.text.isNullOrBlank()){
 
-            if(etStatusIzin.text.isNullOrBlank()){
-                textInputLayoutStatusIzin.error = "Status harus diisi"
-            }else{
-                textInputLayoutStatusIzin.error = null
-                if(etStatusIzin.text.toString() != "Alfa"){
-                    if(etJenisIzin.text.isNullOrBlank()){
-                        textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                if(etName.text.isNullOrBlank()){
+                    textInputLayoutName.error = "Nama harus diisi"
+                }else{
+                    textInputLayoutName.error = null
+                }
+
+                if(etStatusIzin.text.isNullOrBlank()){
+                    textInputLayoutStatusIzin.error = "Status harus diisi"
+                }else{
+                    textInputLayoutStatusIzin.error = null
+                    if(etStatusIzin.text.toString() != "Alfa"){
+                        if(etJenisIzin.text.isNullOrBlank()){
+                            textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                        }else{
+                            textInputLayoutJenisIzin.error = null
+                        }
                     }else{
                         textInputLayoutJenisIzin.error = null
                     }
+                }
+
+                if(etNik.text.isNullOrBlank()){
+                    textInputLayoutNIK.error = "NIK harus diisi"
+                }else{
+                    textInputLayoutNIK.error = null
+                }
+
+                if(etZone.text.isNullOrBlank()){
+                    textInputLayoutZona.error = "Zona harus diisi"
+                }else{
+                    textInputLayoutZona.error = null
+                }
+
+                if(etWilayah.text.isNullOrBlank()){
+                    textInputLayoutWilayah.error = "Wilayah harus diisi"
+                }else{
+                    textInputLayoutWilayah.error = null
+                }
+
+                return false
+
+            }else if(etStatusIzin.text.toString() != "Alfa"){
+
+                if(etJenisIzin.text.isNullOrBlank()){
+                    textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                    return false
                 }else{
                     textInputLayoutJenisIzin.error = null
                 }
             }
 
-            if(etNik.text.isNullOrBlank()){
-                textInputLayoutNIK.error = "NIK harus diisi"
-            }else{
-                textInputLayoutNIK.error = null
-            }
-
-            if(etZone.text.isNullOrBlank()){
-                textInputLayoutZona.error = "Zona harus diisi"
-            }else{
-                textInputLayoutZona.error = null
-            }
-
-            if(etWilayah.text.isNullOrBlank()){
-                textInputLayoutWilayah.error = "Wilayah harus diisi"
-            }else{
-                textInputLayoutWilayah.error = null
-            }
-
-            return false
-
-        }else if(etStatusIzin.text.toString() != "Alfa"){
-
-            if(etJenisIzin.text.isNullOrBlank()){
-                textInputLayoutJenisIzin.error = "Alasan harus diisi"
-                return false
-            }else{
-                textInputLayoutJenisIzin.error = null
-            }
+            return true
         }
 
-        return true
+        else{
+            if(etName.text.isNullOrBlank()
+                || etNik.text.isNullOrBlank()
+                || etWilayah.text.isNullOrBlank()
+                || etStatusIzin.text.isNullOrBlank()){
+
+                if(etName.text.isNullOrBlank()){
+                    textInputLayoutName.error = "Nama harus diisi"
+                }else{
+                    textInputLayoutName.error = null
+                }
+
+                if(etStatusIzin.text.isNullOrBlank()){
+                    textInputLayoutStatusIzin.error = "Status harus diisi"
+                }else{
+                    textInputLayoutStatusIzin.error = null
+                    if(etStatusIzin.text.toString() != "Alfa"){
+                        if(etJenisIzin.text.isNullOrBlank()){
+                            textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                        }else{
+                            textInputLayoutJenisIzin.error = null
+                        }
+                    }else{
+                        textInputLayoutJenisIzin.error = null
+                    }
+                }
+
+                if(etNik.text.isNullOrBlank()){
+                    textInputLayoutNIK.error = "NIK harus diisi"
+                }else {
+                    textInputLayoutNIK.error = null
+                }
+
+                if(etWilayah.text.isNullOrBlank()){
+                    textInputLayoutWilayah.error = "Wilayah harus diisi"
+                }else{
+                    textInputLayoutWilayah.error = null
+                }
+
+                return false
+
+            }else if(etStatusIzin.text.toString() != "Alfa"){
+
+                if(etJenisIzin.text.isNullOrBlank()){
+                    textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                    return false
+                }else{
+                    textInputLayoutJenisIzin.error = null
+                }
+            }
+
+            return true
+        }
     }
 
     fun showActionDialog(){

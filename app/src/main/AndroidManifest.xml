@@ -26,7 +26,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.smart_presence.region_presence_statistic.ZoneOnRegionPresenceStatisticActivity"></activity>
+        <activity android:name=".ui.smart_presence.detail_performance.PerformanceDetailActivity"></activity>
+        <activity android:name=".ui.smart_presence.individual_performance_statistic.IndividualPerformanceStatisticActivity" />
+        <activity android:name=".ui.smart_presence.zone_performance_statistic.ZonePerformanceStatisticActivity" />
+        <activity android:name=".ui.smart_presence.zone_presence_statistic.ZoneOnRegionPresenceStatisticActivity" />
         <activity android:name=".ui.smart_presence.assessment_civil_apparatus.CivilAppartusAssessmentActivity" />
         <activity android:name=".ui.smart_presence.individual_presence_statistic.IndividualPresenceStatisticActivity" />
         <activity android:name=".ui.smart_presence.confirm_permission.ConfirmPermission" />

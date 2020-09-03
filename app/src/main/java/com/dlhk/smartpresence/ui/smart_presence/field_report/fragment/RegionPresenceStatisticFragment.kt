@@ -9,16 +9,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.RegionStatisticGridViewAdapter
-import com.dlhk.smartpresence.adapters.ZonePresenceStatisticRecyclerAdapter
+import com.dlhk.smartpresence.adapters.RegionPresenceStatisticGridViewAdapter
 import com.dlhk.smartpresence.api.response.data.DataRegionPresenceStatistic
-import com.dlhk.smartpresence.api.response.data.DataZonePresenceStatistic
 import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportActivity
 import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportViewModel
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.Utility
-import kotlinx.android.synthetic.main.fragment_presence_statistic.*
 import kotlinx.android.synthetic.main.fragment_region_presence_statistic.*
 
 
@@ -66,7 +63,7 @@ class RegionPresenceStatisticFragment : Fragment() {
                         }
                         presenceStatisticData.addAll(it.data)
 
-                        gridStatistic.adapter = RegionStatisticGridViewAdapter(activity, presenceStatisticData)
+                        gridStatistic.adapter = RegionPresenceStatisticGridViewAdapter(activity, presenceStatisticData)
                         gridStatistic.verticalSpacing = gridStatistic.horizontalSpacing
 
                         Utility.dismissLoadingDialog()
