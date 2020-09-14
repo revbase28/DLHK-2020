@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.PopupMenu
+import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.replace
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.dlhk.smartpresence.R
@@ -46,6 +48,7 @@ class MainMenuActivity : AppCompatActivity() {
 
         TypefaceManager(this)
 
+        inflateSmartPresenceMenu(supportFragmentManager.beginTransaction())
         foto.setOnClickListener {
             val dropDownMenu = PopupMenu(this, foto).apply {
                 menuInflater.inflate(R.menu.dropdown_menu, this.menu)
@@ -54,8 +57,8 @@ class MainMenuActivity : AppCompatActivity() {
                     ) { sessionManager.editor.clear().commit()
                         sessionManager.saveSessionBoolean(false)
                         val intent = Intent(this@MainMenuActivity, LoginActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                             startActivity(this)
-                            finish()
                         }}
                     return@setOnMenuItemClickListener true
                 }
@@ -71,6 +74,10 @@ class MainMenuActivity : AppCompatActivity() {
         inventory.setOnClickListener {
             showInventoryMenu()
         }
+    }
+
+    private fun inflateSmartPresenceMenu(fragmentTransaction: FragmentTransaction){
+        fragmentTransaction.replace(R.id.menu_container, SmartPresenceMenu()).commit()
     }
 
     private fun showSmartPresenceMenu(){

@@ -215,7 +215,6 @@ class PresenceActivity : AppCompatActivity() {
         etWilayah.setText("")
         etZone.setText("")
         etBagian.setText("")
-        etCoordinate.setText("")
     }
 
     private fun verifyInput(role: String): Boolean{

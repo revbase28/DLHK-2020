@@ -53,7 +53,7 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         viewModel = (activity as MainMenuActivity).viewModel
         sessionManager = SessionManager(activity as MainMenuActivity)
         val typefaceManager = TypefaceManager(activity)
-        setFragmentTypeface(typefaceManager)
+        //setFragmentTypeface(typefaceManager)
         determineAccess(sessionManager.getSessionRole()!!, view)
 
         cardAbsen.setOnClickListener {
@@ -69,10 +69,17 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         }
 
         cardAssesment.setOnClickListener {
-            when(sessionManager.getSessionRole()){
-                "Kepala Zona" -> startActivityTo(AssesmentZoneLeaderActivity::class.java)
-                "Koor Wilayah" -> startActivityTo(AssessmentRegionCoordinatorActivity::class.java)
-                "Admin" -> startActivityTo(CivilAppartusAssessmentActivity::class.java)
+            if(sessionManager.getSessionRole() != "Admin") {
+                checkUserPresenceStatus(sessionManager.getSessionId()!!,
+                    {
+                        when(sessionManager.getSessionRole()){
+                            "Kepala Zona" -> startActivityTo(AssesmentZoneLeaderActivity::class.java)
+                            "Koor Wilayah" -> startActivityTo(AssessmentRegionCoordinatorActivity::class.java)
+                        }
+                    },
+                    {Utility.showWarningDialog("Anda Belum Absen", "Silahkan Absen diri anda terebih dulu sebelum menilai pegawai anda", activity)})
+            } else {
+                startActivityTo(CivilAppartusAssessmentActivity::class.java)
             }
         }
 
@@ -86,9 +93,10 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
     }
 
     private fun startActivityTo(cls: Class<*>){
-        val intent = Intent(activity.applicationContext, cls)
+        val intent = Intent(requireContext(), cls)
         intent.apply {
             startActivity(this)
+            activity.finish()
         }
     }
 

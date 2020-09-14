@@ -66,8 +66,9 @@ class LoginActivity : AppCompatActivity() {
 
                         is Resource.Error -> {
                             response.message?.let {
+                                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
                                 when(it){
-                                    "Bad Request" -> {
+                                    "Bad Request", "" -> {
                                         textError.visibility = View.VISIBLE
                                         textError.text = "Username atau password salah"
                                         textPassword.setText("")

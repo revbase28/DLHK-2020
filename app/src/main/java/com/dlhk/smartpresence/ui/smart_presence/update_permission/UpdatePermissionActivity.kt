@@ -60,7 +60,12 @@ class UpdatePermissionActivity : AppCompatActivity() {
 
         Utility.showLoadingDialog(supportFragmentManager, "Get EM Permission Loading")
         getEmployeeFromApi(role)
-        if(role == "Admin") etZone.visibility = View.GONE; textInputLayoutZona.visibility = View.GONE
+        if(role == "Admin") {
+            etZone.visibility = View.GONE
+            textInputLayoutZona.visibility = View.GONE
+            etTempatTugas.visibility = View.GONE
+            textInputLayoutTempatTugas.visibility = View.GONE
+        }
 
         var employeeId: Long = 0
         employeeData = EmployeeSingleton.getEmployeeData()
@@ -165,12 +170,13 @@ class UpdatePermissionActivity : AppCompatActivity() {
 
     private fun verifyInput(role: String): Boolean{
 
-        if(role != "Admin"){
+        if(role != "Admin") {
             if(etName.text.isNullOrBlank()
                 || etNik.text.isNullOrBlank()
                 || etWilayah.text.isNullOrBlank()
                 || etZone.text.isNullOrBlank()
-                || etStatusIzin.text.isNullOrBlank()){
+                || etStatusIzin.text.isNullOrBlank()
+                || etTempatTugas.text.isNullOrBlank()){
 
                 if(etName.text.isNullOrBlank()){
                     textInputLayoutName.error = "Nama harus diisi"
@@ -211,6 +217,12 @@ class UpdatePermissionActivity : AppCompatActivity() {
                     textInputLayoutWilayah.error = null
                 }
 
+                if(etTempatTugas.text.isNullOrBlank()){
+                    textInputLayoutTempatTugas.error = "Wilayah harus diisi"
+                }else{
+                    textInputLayoutTempatTugas.error = null
+                }
+
                 return false
 
             }else if(etStatusIzin.text.toString() != "Alfa"){
@@ -226,7 +238,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
             return true
         }
 
-        else{
+        else {
             if(etName.text.isNullOrBlank()
                 || etNik.text.isNullOrBlank()
                 || etWilayah.text.isNullOrBlank()
@@ -313,12 +325,14 @@ class UpdatePermissionActivity : AppCompatActivity() {
         etZone.setText("")
         etJenisIzin.setText("")
         etStatusIzin.setText("")
+        etTempatTugas.setText("")
         textInputLayoutName.error = null
         textInputLayoutStatusIzin.error = null
         textInputLayoutNIK.error = null
         textInputLayoutZona.error = null
         textInputLayoutWilayah.error = null
         textInputLayoutJenisIzin.error = null
+        textInputLayoutTempatTugas.error = null
     }
 
 

@@ -39,7 +39,6 @@ class ZonePresenceStatisticRecyclerAdapter(
             textPresence.text = presenceData[position].presence.toString()
             textLeave.text = presenceData[position].leave.toString()
             textAbsence.text = presenceData[position].absence.toString()
-            textLate.text = presenceData[position].late.toString()
 
             cardContainer.setOnClickListener {
                 val intent = Intent(context, IndividualPresenceStatisticActivity::class.java).apply {

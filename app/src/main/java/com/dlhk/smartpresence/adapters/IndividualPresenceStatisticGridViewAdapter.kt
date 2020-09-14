@@ -29,7 +29,6 @@ class IndividualPresenceStatisticGridViewAdapter(
         lateinit var textLeave: TextView
         lateinit var textAbsence: TextView
         lateinit var textPercentage: TextView
-        lateinit var textLate: TextView
         lateinit var foto: ImageView
     }
 
@@ -58,7 +57,6 @@ class IndividualPresenceStatisticGridViewAdapter(
             textPresence = itemView.findViewById(R.id.textPresence)
             textLeave = itemView.findViewById(R.id.textLeave)
             textPercentage = itemView.findViewById(R.id.textPercentage)
-            textLate = itemView.findViewById(R.id.textLate)
             foto = itemView.findViewById(R.id.foto)
 
             textName.text = statisticData[position].employeeName
@@ -66,7 +64,6 @@ class IndividualPresenceStatisticGridViewAdapter(
             textAbsence.text = statisticData[position].absence.toString()
             textLeave.text = (statisticData[position].leave.toString())
             textPresence.text = (statisticData[position].presence.toString())
-            textLate.text = statisticData[position].late.toString()
             textPercentage.text = ("${statisticData[position].percentage} %")
 
             Log.d("Text Percentage", "${statisticData[position].percentage} %")
