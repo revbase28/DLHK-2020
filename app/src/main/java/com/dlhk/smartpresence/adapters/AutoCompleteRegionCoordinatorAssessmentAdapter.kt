@@ -9,17 +9,17 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.api.response.data.DataEmployee
+import com.dlhk.smartpresence.api.response.data.DataGetPresence
 import com.norbsoft.typefacehelper.TypefaceHelper
 
-class AutoCompleteRegionCoordinatorAdapter(
+class AutoCompleteRegionCoordinatorAssessmentAdapter(
     val mContext: Context,
     val resourceId: Int,
-    val dataEmployee: ArrayList<DataEmployee>
-): ArrayAdapter<DataEmployee>(mContext, resourceId, dataEmployee) {
+    val dataEmployee: ArrayList<DataGetPresence>
+): ArrayAdapter<DataGetPresence>(mContext, resourceId, dataEmployee) {
 
-    private var dataEmployeeFull = dataEmployee.clone() as ArrayList<DataEmployee>
-    private var suggestions = ArrayList<DataEmployee>()
+    private var dataEmployeeFull = dataEmployee.clone() as ArrayList<DataGetPresence>
+    private var suggestions = ArrayList<DataGetPresence>()
 
     init {
         Log.d("Adapter AutoComplete", "Adapter Atached ${dataEmployee.toString()}")
@@ -32,10 +32,10 @@ class AutoCompleteRegionCoordinatorAdapter(
             view = inflater.inflate(resourceId, null)
         }
 
-        val employee: DataEmployee? = dataEmployee[position]
+        val employee: DataGetPresence? = dataEmployee[position]
         if(employee != null){
             val textName =  view?.findViewById(R.id.textName) as TextView
-            textName.text = "${employee.name} - (${employee.region})"
+            textName.text = "${employee.employeeName} - (${employee.regionName})"
         }
 
         TypefaceHelper.typeface(view)
@@ -48,14 +48,14 @@ class AutoCompleteRegionCoordinatorAdapter(
 
     private val filter : Filter = object : Filter(){
         override fun convertResultToString(resultValue: Any?): CharSequence {
-            return (resultValue as DataEmployee).name
+            return (resultValue as DataGetPresence).employeeName
         }
 
         override fun performFiltering(p0: CharSequence?): FilterResults {
             return if(p0 != null){
                 suggestions.clear()
                 for(employee in dataEmployeeFull){
-                    if(employee.name.toLowerCase().startsWith(p0.toString().toLowerCase())){
+                    if(employee.employeeName.toLowerCase().startsWith(p0.toString().toLowerCase())){
                         suggestions.add(employee)
                     }
                 }
@@ -72,11 +72,11 @@ class AutoCompleteRegionCoordinatorAdapter(
         }
 
         override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
-            val filteredList = p1?.values as ArrayList<DataEmployee>?
+            val filteredList = p1?.values as ArrayList<DataGetPresence>?
 
             if(p1 != null && p1.count > 0){
                 clear()
-                for(c: DataEmployee in filteredList ?: listOf<DataEmployee>()){
+                for(c: DataGetPresence in filteredList ?: listOf<DataGetPresence>()){
                     add(c)
                 }
                 notifyDataSetChanged()

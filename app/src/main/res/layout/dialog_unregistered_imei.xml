@@ -11,26 +11,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/imageView15"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/imeiNumber"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="72dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="72dp"
-            android:src="@drawable/ic_success"
+            android:layout_marginEnd="16dp"
+            android:minWidth="240dp"
+            android:text="F268177"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="26sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/mainText"
-            android:layout_width="0dp"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
+            android:minWidth="120dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="MAIN TEXT"
+            android:text="@string/device_belum_terdaftar"
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textColor="@android:color/black"
@@ -38,7 +44,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView15" />
+            app:layout_constraintTop_toBottomOf="@+id/imeiNumber" />
 
         <TextView
             android:id="@+id/subText"
@@ -47,7 +53,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:text="This is Sub Text"
+            android:text="@string/device_belum_tedaftar_sub_text"
             android:textAlignment="center"
             android:textColor="@color/lightBlack"
             android:textSize="14sp"
@@ -66,7 +72,7 @@
             android:backgroundTint="@color/green"
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
-            android:text="Selesai"
+            android:text="Mengerti"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -6,6 +6,8 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.dlhk.smartpresence.api.response.data.DataLocation
+import com.dlhk.smartpresence.util.Constant.Companion.FASTEST_LOCATION_INTERVAL
+import com.dlhk.smartpresence.util.Constant.Companion.LOCATION_UPDATE_INTERVAL
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -31,6 +33,8 @@ class LocationLiveData(context: Context) : LiveData<DataLocation>() {
     companion object{
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = LOCATION_UPDATE_INTERVAL
+            fastestInterval = FASTEST_LOCATION_INTERVAL
         }
     }
 

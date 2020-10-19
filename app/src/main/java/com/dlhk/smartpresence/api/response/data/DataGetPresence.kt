@@ -11,5 +11,6 @@ data class DataGetPresence(
     val presenceStatus: String,
     val regionName: String,
     val roleName: String,
-    val zoneName: String
+    val zoneName: String,
+    val counter: Int?
 )

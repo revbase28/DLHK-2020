@@ -1,7 +1,6 @@
 package com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator
 
 import android.content.Intent
-import android.location.Geocoder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,7 +10,7 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.repositories.AssessmentRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.DrainageHeadAssesmentFragment
-import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssesmentFragment
+import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssessmentFragment
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.util.SessionManager
 import com.dlhk.smartpresence.util.TypefaceManager
@@ -41,7 +40,7 @@ class AssessmentRegionCoordinatorActivity : AppCompatActivity() {
 
         cardDrainage.setOnClickListener{
             when(getCurrentAttachedFragment()){
-                is SweeperHeadAssesmentFragment -> {
+                is SweeperHeadAssessmentFragment -> {
                     findNavController(R.id.navHostFragment).navigate(R.id.action_sweeperHeadAssesmentFragment_to_drainageHeadAssesmentFragment)
                 }
             }

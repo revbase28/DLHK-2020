@@ -22,7 +22,6 @@ import com.dlhk.smartpresence.util.*
 import kotlinx.android.synthetic.main.activity_self_presence.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -40,7 +39,11 @@ class SelfPresenceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_self_presence)
 
         val attendanceRepo = AttendanceRepo()
-        val viewModelFactory = SelfPresenceViewModelFactory(attendanceRepo, application)
+        val viewModelFactory =
+            SelfPresenceViewModelFactory(
+                attendanceRepo,
+                application
+            )
         viewModel = ViewModelProvider(this, viewModelFactory).get(SelfPresenceViewModel::class.java)
         sessionManager = SessionManager(this)
         TypefaceManager(this)

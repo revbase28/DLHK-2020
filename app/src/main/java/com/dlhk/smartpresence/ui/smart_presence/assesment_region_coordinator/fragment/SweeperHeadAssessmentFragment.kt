@@ -21,7 +21,7 @@ import com.dlhk.smartpresence.util.*
 import com.hsalf.smileyrating.SmileyRating
 import kotlinx.android.synthetic.main.fragment_assesment_sweeper_head.*
 
-class SweeperHeadAssesmentFragment : Fragment() {
+class SweeperHeadAssessmentFragment : Fragment() {
 
     lateinit var sessionManager : SessionManager
     lateinit var viewModel: AssessmentRegionCoordinatorViewModel

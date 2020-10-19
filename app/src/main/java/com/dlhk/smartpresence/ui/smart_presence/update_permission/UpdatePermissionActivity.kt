@@ -16,6 +16,7 @@ import com.dlhk.smartpresence.EmployeeSingleton
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteEmployeeAdapter
 import com.dlhk.smartpresence.adapters.AutoCompleteRegionCoordinatorAdapter
+import com.dlhk.smartpresence.adapters.AutoCompleteRegionCoordinatorAssessmentAdapter
 import com.dlhk.smartpresence.adapters.AutoCompleteZoneLeaderAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
 import com.dlhk.smartpresence.repositories.AttendanceRepo
@@ -60,9 +61,14 @@ class UpdatePermissionActivity : AppCompatActivity() {
 
         Utility.showLoadingDialog(supportFragmentManager, "Get EM Permission Loading")
         getEmployeeFromApi(role)
-        if(role == "Admin") {
+        if(role == "Admin" || role == "Admin Presence") {
             etZone.visibility = View.GONE
             textInputLayoutZona.visibility = View.GONE
+            etTempatTugas.visibility = View.GONE
+            textInputLayoutTempatTugas.visibility = View.GONE
+        }
+
+        if(role == "Koor Wilayah") {
             etTempatTugas.visibility = View.GONE
             textInputLayoutTempatTugas.visibility = View.GONE
         }
@@ -74,7 +80,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
             val selectedItem = adapterView.getItemAtPosition(position) as DataEmployee
             etNik.setText(selectedItem.employeeNumber)
             etWilayah.setText(selectedItem.region)
-            if(role != "Admin") etZone.setText(selectedItem.zone)
+            if(role != "Admin" || role != "Admin Presence") etZone.setText(selectedItem.zone)
             employeeId = selectedItem.employeeId
         }
 
@@ -104,8 +110,9 @@ class UpdatePermissionActivity : AppCompatActivity() {
                 if(viewModel.permitData.value != null) viewModel.permitData.value = null
 
                 val reason = if(etStatusIzin.text.toString() == "Alfa") "" else etJenisIzin.text.toString()
+                val location = etTempatTugas.text.toString()
                 Utility.showLoadingDialog(supportFragmentManager, "Loading Permission")
-                viewModel.sendPermit(nowsDate, reason, employeeId, permitStatus )
+                viewModel.sendPermit(nowsDate, reason, employeeId, permitStatus, location)
                 viewModel.permitData.observe(this, Observer { response ->
                     when(response){
                         is Resource.Success ->{
@@ -138,7 +145,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
             "Koor Wilayah" -> {
                 viewModel.getHeadZonePerRegion(sessionManager.getSessionRegion()!!)
             }
-            "Admin" -> {
+            "Admin", "Admin Presence" -> {
                 viewModel.getRegionCoordinator()
             }
         }
@@ -151,7 +158,7 @@ class UpdatePermissionActivity : AppCompatActivity() {
                     val autoCompleteAdapter = when(role){
                         "Kepala Zona" -> {AutoCompleteEmployeeAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
                         "Koor Wilayah" -> {AutoCompleteZoneLeaderAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
-                        "Admin" -> {AutoCompleteRegionCoordinatorAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
+                        "Admin", "Admin Presence" -> {AutoCompleteRegionCoordinatorAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
                         else -> {AutoCompleteEmployeeAdapter(this, R.layout.layout_auto_complete_text_view, employeeData)}
                     }
                     etName.setAdapter(autoCompleteAdapter)
@@ -169,127 +176,189 @@ class UpdatePermissionActivity : AppCompatActivity() {
     }
 
     private fun verifyInput(role: String): Boolean{
+        when(role) {
+            "Admin", "Admin Presence" -> {
+                if(etName.text.isNullOrBlank()
+                    || etNik.text.isNullOrBlank()
+                    || etWilayah.text.isNullOrBlank()
+                    || etStatusIzin.text.isNullOrBlank()){
 
-        if(role != "Admin") {
-            if(etName.text.isNullOrBlank()
-                || etNik.text.isNullOrBlank()
-                || etWilayah.text.isNullOrBlank()
-                || etZone.text.isNullOrBlank()
-                || etStatusIzin.text.isNullOrBlank()
-                || etTempatTugas.text.isNullOrBlank()){
+                    if(etName.text.isNullOrBlank()){
+                        textInputLayoutName.error = "Nama harus diisi"
+                    }else{
+                        textInputLayoutName.error = null
+                    }
 
-                if(etName.text.isNullOrBlank()){
-                    textInputLayoutName.error = "Nama harus diisi"
-                }else{
-                    textInputLayoutName.error = null
-                }
-
-                if(etStatusIzin.text.isNullOrBlank()){
-                    textInputLayoutStatusIzin.error = "Status harus diisi"
-                }else{
-                    textInputLayoutStatusIzin.error = null
-                    if(etStatusIzin.text.toString() != "Alfa"){
-                        if(etJenisIzin.text.isNullOrBlank()){
-                            textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                    if(etStatusIzin.text.isNullOrBlank()){
+                        textInputLayoutStatusIzin.error = "Status harus diisi"
+                    }else{
+                        textInputLayoutStatusIzin.error = null
+                        if(etStatusIzin.text.toString() != "Alfa"){
+                            if(etJenisIzin.text.isNullOrBlank()){
+                                textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                            }else{
+                                textInputLayoutJenisIzin.error = null
+                            }
                         }else{
                             textInputLayoutJenisIzin.error = null
                         }
+                    }
+
+                    if(etNik.text.isNullOrBlank()){
+                        textInputLayoutNIK.error = "NIK harus diisi"
+                    }else {
+                        textInputLayoutNIK.error = null
+                    }
+
+                    if(etWilayah.text.isNullOrBlank()){
+                        textInputLayoutWilayah.error = "Wilayah harus diisi"
+                    }else{
+                        textInputLayoutWilayah.error = null
+                    }
+
+                    return false
+
+                }else if(etStatusIzin.text.toString() != "Alfa"){
+
+                    if(etJenisIzin.text.isNullOrBlank()){
+                        textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                        return false
                     }else{
                         textInputLayoutJenisIzin.error = null
                     }
                 }
 
-                if(etNik.text.isNullOrBlank()){
-                    textInputLayoutNIK.error = "NIK harus diisi"
-                }else{
-                    textInputLayoutNIK.error = null
-                }
-
-                if(etZone.text.isNullOrBlank()){
-                    textInputLayoutZona.error = "Zona harus diisi"
-                }else{
-                    textInputLayoutZona.error = null
-                }
-
-                if(etWilayah.text.isNullOrBlank()){
-                    textInputLayoutWilayah.error = "Wilayah harus diisi"
-                }else{
-                    textInputLayoutWilayah.error = null
-                }
-
-                if(etTempatTugas.text.isNullOrBlank()){
-                    textInputLayoutTempatTugas.error = "Wilayah harus diisi"
-                }else{
-                    textInputLayoutTempatTugas.error = null
-                }
-
-                return false
-
-            }else if(etStatusIzin.text.toString() != "Alfa"){
-
-                if(etJenisIzin.text.isNullOrBlank()){
-                    textInputLayoutJenisIzin.error = "Alasan harus diisi"
-                    return false
-                }else{
-                    textInputLayoutJenisIzin.error = null
-                }
+                return true
             }
 
-            return true
-        }
+            "Koor Wilayah" -> {
+                if(etName.text.isNullOrBlank()
+                    || etNik.text.isNullOrBlank()
+                    || etWilayah.text.isNullOrBlank()
+                    || etZone.text.isNullOrBlank()
+                    || etStatusIzin.text.isNullOrBlank()){
 
-        else {
-            if(etName.text.isNullOrBlank()
-                || etNik.text.isNullOrBlank()
-                || etWilayah.text.isNullOrBlank()
-                || etStatusIzin.text.isNullOrBlank()){
+                    if(etName.text.isNullOrBlank()){
+                        textInputLayoutName.error = "Nama harus diisi"
+                    }else{
+                        textInputLayoutName.error = null
+                    }
 
-                if(etName.text.isNullOrBlank()){
-                    textInputLayoutName.error = "Nama harus diisi"
-                }else{
-                    textInputLayoutName.error = null
-                }
-
-                if(etStatusIzin.text.isNullOrBlank()){
-                    textInputLayoutStatusIzin.error = "Status harus diisi"
-                }else{
-                    textInputLayoutStatusIzin.error = null
-                    if(etStatusIzin.text.toString() != "Alfa"){
-                        if(etJenisIzin.text.isNullOrBlank()){
-                            textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                    if(etStatusIzin.text.isNullOrBlank()){
+                        textInputLayoutStatusIzin.error = "Status harus diisi"
+                    }else{
+                        textInputLayoutStatusIzin.error = null
+                        if(etStatusIzin.text.toString() != "Alfa"){
+                            if(etJenisIzin.text.isNullOrBlank()){
+                                textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                            }else{
+                                textInputLayoutJenisIzin.error = null
+                            }
                         }else{
                             textInputLayoutJenisIzin.error = null
                         }
+                    }
+
+                    if(etNik.text.isNullOrBlank()){
+                        textInputLayoutNIK.error = "NIK harus diisi"
+                    }else{
+                        textInputLayoutNIK.error = null
+                    }
+
+                    if(etZone.text.isNullOrBlank()){
+                        textInputLayoutZona.error = "Zona harus diisi"
+                    }else{
+                        textInputLayoutZona.error = null
+                    }
+
+                    if(etWilayah.text.isNullOrBlank()){
+                        textInputLayoutWilayah.error = "Wilayah harus diisi"
+                    }else{
+                        textInputLayoutWilayah.error = null
+                    }
+
+                    return false
+
+                }else if(etStatusIzin.text.toString() != "Alfa"){
+
+                    if(etJenisIzin.text.isNullOrBlank()){
+                        textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                        return false
                     }else{
                         textInputLayoutJenisIzin.error = null
                     }
                 }
 
-                if(etNik.text.isNullOrBlank()){
-                    textInputLayoutNIK.error = "NIK harus diisi"
-                }else {
-                    textInputLayoutNIK.error = null
-                }
-
-                if(etWilayah.text.isNullOrBlank()){
-                    textInputLayoutWilayah.error = "Wilayah harus diisi"
-                }else{
-                    textInputLayoutWilayah.error = null
-                }
-
-                return false
-
-            }else if(etStatusIzin.text.toString() != "Alfa"){
-
-                if(etJenisIzin.text.isNullOrBlank()){
-                    textInputLayoutJenisIzin.error = "Alasan harus diisi"
-                    return false
-                }else{
-                    textInputLayoutJenisIzin.error = null
-                }
+                return true
             }
 
-            return true
+            else -> {
+                if(etName.text.isNullOrBlank()
+                    || etNik.text.isNullOrBlank()
+                    || etWilayah.text.isNullOrBlank()
+                    || etZone.text.isNullOrBlank()
+                    || etStatusIzin.text.isNullOrBlank()
+                    || etTempatTugas.text.isNullOrBlank()){
+
+                    if(etName.text.isNullOrBlank()){
+                        textInputLayoutName.error = "Nama harus diisi"
+                    }else{
+                        textInputLayoutName.error = null
+                    }
+
+                    if(etStatusIzin.text.isNullOrBlank()){
+                        textInputLayoutStatusIzin.error = "Status harus diisi"
+                    }else{
+                        textInputLayoutStatusIzin.error = null
+                        if(etStatusIzin.text.toString() != "Alfa"){
+                            if(etJenisIzin.text.isNullOrBlank()){
+                                textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                            }else{
+                                textInputLayoutJenisIzin.error = null
+                            }
+                        }else{
+                            textInputLayoutJenisIzin.error = null
+                        }
+                    }
+
+                    if(etNik.text.isNullOrBlank()){
+                        textInputLayoutNIK.error = "NIK harus diisi"
+                    }else{
+                        textInputLayoutNIK.error = null
+                    }
+
+                    if(etZone.text.isNullOrBlank()){
+                        textInputLayoutZona.error = "Zona harus diisi"
+                    }else{
+                        textInputLayoutZona.error = null
+                    }
+
+                    if(etWilayah.text.isNullOrBlank()){
+                        textInputLayoutWilayah.error = "Wilayah harus diisi"
+                    }else{
+                        textInputLayoutWilayah.error = null
+                    }
+
+                    if(etTempatTugas.text.isNullOrBlank()){
+                        textInputLayoutTempatTugas.error = "Wilayah harus diisi"
+                    }else{
+                        textInputLayoutTempatTugas.error = null
+                    }
+
+                    return false
+
+                }else if(etStatusIzin.text.toString() != "Alfa"){
+
+                    if(etJenisIzin.text.isNullOrBlank()){
+                        textInputLayoutJenisIzin.error = "Alasan harus diisi"
+                        return false
+                    }else{
+                        textInputLayoutJenisIzin.error = null
+                    }
+                }
+
+                return true
+            }
         }
     }
 

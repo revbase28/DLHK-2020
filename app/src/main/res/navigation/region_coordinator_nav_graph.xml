@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/sweeperHeadAssesmentFragment"
-        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssessmentFragment"
         android:label="fragment_assesment_sweeper_head"
         tools:layout="@layout/fragment_assesment_sweeper_head" >
         <action

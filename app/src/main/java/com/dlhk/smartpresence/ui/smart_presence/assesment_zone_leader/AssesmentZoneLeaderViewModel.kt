@@ -1,8 +1,10 @@
 package com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dlhk.smartpresence.LocationLiveData
 import com.dlhk.smartpresence.api.response.ResponseGetPresence
 import com.dlhk.smartpresence.api.response.ResponsePostGarbageCollectorAssessment
 import com.dlhk.smartpresence.api.response.ResponsePostDrainageAssessment
@@ -14,14 +16,17 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class AssesmentZoneLeaderViewModel(
+    val app: Application,
     val employeeRepo: EmployeeRepo,
-    val assessmentRepo: AssessmentRepo
-): ViewModel() {
+    val assesmentRepo: AssessmentRepo
+): AndroidViewModel(app) {
 
     val presenceData: MutableLiveData<Resource<ResponseGetPresence>> = MutableLiveData()
     val drainageAssessmentData: MutableLiveData<Resource<ResponsePostDrainageAssessment>> = MutableLiveData()
     val sweeperAssessmentData: MutableLiveData<Resource<ResponsePostSweeperAssessment>> = MutableLiveData()
     val garbageCollectorDataAssessment: MutableLiveData<Resource<ResponsePostGarbageCollectorAssessment>> = MutableLiveData()
+
+    val locationData = LocationLiveData(app)
 
     fun getEmployeePerRegionAndRole(zoneName: String, regionName: String, role: String, shift: String){
         viewModelScope.launch {
@@ -36,10 +41,12 @@ class AssesmentZoneLeaderViewModel(
                                completeness: Int,
                                discipline: Int,
                                sediment: Int,
-                               weed: Int){
+                               weed: Int,
+                               location: String
+    ) {
         viewModelScope.launch {
             drainageAssessmentData.postValue(Resource.Loading())
-            val response = assessmentRepo.postDrainageAssessment(presenceId, cleanliness, completeness, discipline, sediment, weed)
+            val response = assesmentRepo.postDrainageAssessment(presenceId, cleanliness, completeness, discipline, sediment, weed, location)
             handleDrainageAssessmentResponse(response)
         }
     }
@@ -50,10 +57,12 @@ class AssesmentZoneLeaderViewModel(
                               discipline: Int,
                               sidewalk: Int,
                               waterRope: Int,
-                              roadMedian: Int){
+                              roadMedian: Int,
+                              location: String
+    ) {
         viewModelScope.launch {
             sweeperAssessmentData.postValue(Resource.Loading())
-            val response = assessmentRepo.postSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian)
+            val response = assesmentRepo.postSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian, location)
             handleSweeperAssessmentResponse(response)
         }
     }
@@ -65,14 +74,17 @@ class AssesmentZoneLeaderViewModel(
         separation: Int,
         tps: Int,
         organic: Int,
-        anorganic: Int
+        anorganic: Int,
+        location: String
     ){
         viewModelScope.launch {
             garbageCollectorDataAssessment.postValue(Resource.Loading())
-            val response = assessmentRepo.postGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, organic, anorganic)
+            val response = assesmentRepo.postGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, organic, anorganic, location)
             handleGarbageCollectorAssessment(response)
         }
     }
+
+    fun getCurrentLocation() = locationData
 
     private fun handleEmployeeResponse(response: Response<ResponseGetPresence>){
         if(response.isSuccessful){

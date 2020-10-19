@@ -19,10 +19,10 @@ class UpdatePermissionViewModel(
     val permitData : MutableLiveData<Resource<ResponsePermit>> = MutableLiveData()
     val employeeData : MutableLiveData<Resource<ResponseGetEmployee>> = MutableLiveData()
 
-    fun sendPermit(dateOfLeave: String, desc: String, employeeId: Long, status: String){
+    fun sendPermit(dateOfLeave: String, desc: String, employeeId: Long, status: String, location: String){
         viewModelScope.launch {
             permitData.postValue(Resource.Loading())
-            val response = attendanceRepo.sendPermit(dateOfLeave, desc, employeeId, status)
+            val response = attendanceRepo.sendPermit(dateOfLeave, desc, employeeId, status, location)
             permitData.postValue(handlePermitResponse(response))
         }
     }

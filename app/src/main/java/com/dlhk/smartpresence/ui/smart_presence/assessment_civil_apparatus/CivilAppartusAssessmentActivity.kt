@@ -11,14 +11,11 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dlhk.smartpresence.R
-import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
-import com.dlhk.smartpresence.adapters.AutoCompleteRegionCoordinatorAdapter
-import com.dlhk.smartpresence.api.response.data.DataEmployee
+import com.dlhk.smartpresence.adapters.AutoCompleteRegionCoordinatorAssessmentAdapter
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
 import com.dlhk.smartpresence.repositories.AssessmentRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
-import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
 import com.dlhk.smartpresence.util.Resource
 import com.dlhk.smartpresence.util.TypefaceManager
 import com.dlhk.smartpresence.util.Utility
@@ -27,7 +24,7 @@ import kotlinx.android.synthetic.main.activity_civil_appartus_assessment.*
 class CivilAppartusAssessmentActivity : AppCompatActivity() {
 
     lateinit var viewModel: CivilApparatusViewModel
-    var employeeDataList : ArrayList<DataEmployee> = ArrayList()
+    var employeeDataList : ArrayList<DataGetPresence> = ArrayList()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,9 +51,9 @@ class CivilAppartusAssessmentActivity : AppCompatActivity() {
             threshold = 0
 
             setOnItemClickListener { adapterView, view, position, id ->
-                val selectedItem = adapterView.getItemAtPosition(position) as DataEmployee
+                val selectedItem = adapterView.getItemAtPosition(position) as DataGetPresence
                 etNik.setText(selectedItem.employeeNumber)
-                etWilayah.setText(selectedItem.region)
+                etWilayah.setText(selectedItem.regionName)
                 employeeId = selectedItem.employeeId
             }
 
@@ -119,7 +116,7 @@ class CivilAppartusAssessmentActivity : AppCompatActivity() {
                         if(it?.data != null){
                             employeeDataList.clear()
                             employeeDataList.addAll(it.data)
-                            etName.setAdapter(AutoCompleteRegionCoordinatorAdapter(this, R.layout.layout_auto_complete_text_view, employeeDataList))
+                            etName.setAdapter(AutoCompleteRegionCoordinatorAssessmentAdapter(this, R.layout.layout_auto_complete_text_view, employeeDataList))
                         }
                         Utility.dismissLoadingDialog()
                     }

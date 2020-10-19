@@ -13,8 +13,9 @@ class AssessmentRepo {
         completeness: Int,
         discipline: Int,
         sediment: Int,
-        weed: Int
-    ) = RetrofitInstance.api.sendDrainageAssessment(presenceId, cleanliness, completeness, discipline, sediment, weed)
+        weed: Int,
+        location: String
+    ) = RetrofitInstance.api.sendDrainageAssessment(presenceId, cleanliness, completeness, discipline, sediment, weed, location)
 
     suspend fun postSweeperAssessment(
         presenceId: Long,
@@ -23,8 +24,9 @@ class AssessmentRepo {
         discipline: Int,
         sidewalk: Int,
         waterRope: Int,
-        roadMedian: Int
-    ) = RetrofitInstance.api.sendSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian)
+        roadMedian: Int,
+        location: String
+    ) = RetrofitInstance.api.sendSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian, location)
 
     suspend fun postGarbageCollectorAssessment(
         presenceId: Long,
@@ -33,8 +35,9 @@ class AssessmentRepo {
         separation: Int,
         tps: Int,
         organic: Int,
-        anorganic: Int
-    ) = RetrofitInstance.api.sendGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, organic, anorganic)
+        anorganic: Int,
+        location: String
+    ) = RetrofitInstance.api.sendGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, organic, anorganic, location)
 
     suspend fun postZoneHeadAssessment(
         presenceId: Long,

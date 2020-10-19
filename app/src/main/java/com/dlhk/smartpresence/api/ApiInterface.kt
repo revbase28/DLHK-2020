@@ -8,6 +8,11 @@ import retrofit2.http.*
 
 interface ApiInterface {
 
+    @GET("imei/{imei}")
+    suspend fun checkIfImeiRegistered(
+        @Path(value = "imei", encoded = true) imei: String
+    ): Response<ResponseCheckIfImeiRegistered>
+
     @FormUrlEncoded
     @POST("login")
     suspend fun login(
@@ -53,11 +58,9 @@ interface ApiInterface {
         @Path(value="regionName", encoded = true) regionName: String
     ): Response<ResponseGetPresence>
 
-    @GET("employee/presence/headregion")
-    suspend fun getPresenceRegionCoordinator(
-    ): Response<ResponseGetEmployee>
-
-
+    @GET("presence/headregion")
+    suspend fun  getPresenceRegionCoordinator(
+    ): Response<ResponseGetPresence>
 
     @Multipart
     @POST("presence")
@@ -74,7 +77,8 @@ interface ApiInterface {
         @Field("dateOfLeave") dateOfLeave: String,
         @Field("description") desc: String,
         @Field("employeeId") employeeId: Long,
-        @Field("leaveStatus") leaveStatus: String
+        @Field("leaveStatus") leaveStatus: String,
+        @Field("location") location: String
     ): Response<ResponsePermit>
 
     @FormUrlEncoded
@@ -85,7 +89,8 @@ interface ApiInterface {
         @Field("completeness") completeness: Int,
         @Field("dicipline") discipline: Int,
         @Field("sediment") sediment: Int,
-        @Field("weed") weed: Int
+        @Field("weed") weed: Int,
+          @Field("location") location: String
     ): Response<ResponsePostDrainageAssessment>
 
     @FormUrlEncoded
@@ -97,7 +102,8 @@ interface ApiInterface {
         @Field("dicipline") discipline: Int,
         @Field("sidewalk") sidewalk: Int,
         @Field("waterRope") waterRope: Int,
-        @Field("roadMedian") roadMedian: Int
+        @Field("roadMedian") roadMedian: Int,
+        @Field("location") location: String
     ): Response<ResponsePostSweeperAssessment>
 
     @FormUrlEncoded
@@ -109,7 +115,8 @@ interface ApiInterface {
         @Field("separation") separation: Int,
         @Field("TPS") tps: Int,
         @Field("volumeOfOrganic") organic: Int,
-        @Field("volumeOfAnorganic") anorganic: Int
+        @Field("volumeOfAnorganic") anorganic: Int,
+        @Field( "location") location: String
     ): Response<ResponsePostGarbageCollectorAssessment>
 
     @FormUrlEncoded

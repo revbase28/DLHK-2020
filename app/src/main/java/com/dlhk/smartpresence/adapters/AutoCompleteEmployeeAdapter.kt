@@ -59,12 +59,15 @@ class AutoCompleteEmployeeAdapter(
                         suggestions.add(employee)
                     }
                 }
-                val fiterResult = FilterResults()
-                fiterResult.values = suggestions
-                fiterResult.count = suggestions.size
-                fiterResult
-            }else{
-                FilterResults()
+                return  FilterResults().apply {
+                    values = suggestions
+                    count = suggestions.size
+                }
+            } else {
+                return FilterResults().apply {
+                    values = dataEmployeeFull
+                    count = dataEmployee.size
+                }
             }
         }
 

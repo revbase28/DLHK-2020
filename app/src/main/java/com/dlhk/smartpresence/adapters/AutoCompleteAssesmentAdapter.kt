@@ -11,7 +11,6 @@ import android.widget.TextView
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
 import com.norbsoft.typefacehelper.TypefaceHelper
-import kotlinx.android.synthetic.main.layout_auto_complete_text_view.view.*
 
 class AutoCompleteAssesmentAdapter(
     val mContext: Context,
@@ -60,12 +59,15 @@ class AutoCompleteAssesmentAdapter(
                         suggestions.add(employee)
                     }
                 }
-                val fiterResult = FilterResults()
-                fiterResult.values = suggestions
-                fiterResult.count = suggestions.size
-                fiterResult
-            }else{
-                FilterResults()
+                return  FilterResults().apply {
+                    values = suggestions
+                    count = suggestions.size
+                }
+            } else {
+                return FilterResults().apply {
+                    values = dataEmployeeFull
+                    count = dataEmployee.size
+                }
             }
         }
 

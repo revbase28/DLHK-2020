@@ -24,6 +24,7 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteEmployeeAdapter
 import com.dlhk.smartpresence.adapters.AutoCompleteZoneLeaderAdapter
 import com.dlhk.smartpresence.api.response.data.DataEmployee
+import com.dlhk.smartpresence.api.response.data.DataLocation
 import com.dlhk.smartpresence.repositories.AttendanceRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
@@ -47,6 +48,7 @@ class PresenceActivity : AppCompatActivity() {
     lateinit var sendReadyPhotoFile : File
     lateinit var sessionManager: SessionManager
     lateinit var employeeData: ArrayList<DataEmployee>
+    lateinit var observer: Observer<DataLocation>
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,7 +70,7 @@ class PresenceActivity : AppCompatActivity() {
 
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            showGPSDisabledAlertToUser()
+            Utility.showGPSDisabledAlertToUser(this) {onBackPressed()}
         }
 
 
@@ -116,7 +118,6 @@ class PresenceActivity : AppCompatActivity() {
             takePicture()
         }
 
-        var loading = 1
         btnSubmit.setOnClickListener {
             if(viewModel.presenceData.value != null){
                 viewModel.presenceData.value = null
@@ -144,6 +145,7 @@ class PresenceActivity : AppCompatActivity() {
                                 imageViewFoto.setImageDrawable(resources.getDrawable(R.drawable.placeholder_camera_green, null))
                                 dismissError()
                                 getEmployeeFromApi()
+                                stopLocationUpdate()
                             }
                             Utility.dismissLoadingDialog()
                         }
@@ -184,30 +186,18 @@ class PresenceActivity : AppCompatActivity() {
         }
     }
 
-    private fun showGPSDisabledAlertToUser() {
-        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-        alertDialogBuilder.setMessage("GPS diperlukan untuk mengakses fitur ini")
-            .setCancelable(false)
-            .setPositiveButton("Hidupkan GPS",
-                DialogInterface.OnClickListener { dialog, id ->
-                    val callGPSSettingIntent = Intent(
-                        Settings.ACTION_LOCATION_SOURCE_SETTINGS
-                    )
-                    startActivity(callGPSSettingIntent)
-                })
-        alertDialogBuilder.setNegativeButton("Batal",
-            DialogInterface.OnClickListener { dialog, id ->
-                dialog.cancel()
-                onBackPressed()
-            })
-        val alert: AlertDialog = alertDialogBuilder.create()
-        alert.show()
+    private fun startLocationUpdate(){
+        observer = Observer {
+                val coordinate = "${it.latitude}, ${it.longitude}"
+                Log.d("New Location", "${it.latitude}, ${it.longitude}")
+                etCoordinate.setText(coordinate)
+        }
+        
+        viewModel.getCurrentLocation().observe(this, observer)
     }
 
-    private fun startLocationUpdate(){
-        viewModel.getCurrentLocation().observe(this, Observer {
-            etCoordinate.setText("Lat ${it.latitude}, Long ${it.longitude}")
-        })
+    private fun stopLocationUpdate() {
+        viewModel.getCurrentLocation().removeObserver(observer)
     }
 
     private fun clearInput(){

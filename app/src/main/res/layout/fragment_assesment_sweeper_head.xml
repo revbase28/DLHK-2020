@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssesmentFragment">
+    tools:context=".ui.smart_presence.assesment_region_coordinator.fragment.SweeperHeadAssessmentFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -42,11 +42,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:hint="Name"
-            app:endIconMode="none"
             android:textColorHint="@color/lightBlack"
+            app:endIconMode="none"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:hintTextColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"

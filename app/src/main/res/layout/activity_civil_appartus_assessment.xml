@@ -64,7 +64,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutNIK"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -73,7 +73,7 @@
             android:hint="NIK"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -91,7 +91,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutName"
-            style="@style/EditTextDropdownInputOrangeLayoutStyle"
+            style="@style/EditTextDropdownInputGreenLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -101,7 +101,7 @@
             android:textColorHint="@color/lightBlack"
             app:endIconMode="none"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView14">
@@ -117,7 +117,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutWilayah"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -126,7 +126,7 @@
             android:hint="Wilayah"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNIK">
@@ -144,7 +144,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutKehadiran"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -153,7 +153,7 @@
             android:hint="Kehadiran"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toStartOf="@+id/textView7"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutWilayah">
@@ -182,7 +182,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutLaporan"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -191,7 +191,7 @@
             android:hint="Laporan"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toStartOf="@+id/textView6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutKehadiran">
@@ -220,7 +220,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutKebersihanLapangan"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -229,7 +229,7 @@
             android:hint="Kebersihan Lapangan"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toStartOf="@+id/textView8"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutLaporan">
@@ -258,7 +258,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutKepuasanMasyarakat"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -267,7 +267,7 @@
             android:hint="Kepuasan Masyarakat"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toStartOf="@+id/textView9"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutKebersihanLapangan">
@@ -296,7 +296,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutPenyelesaianPengaduan"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -305,7 +305,7 @@
             android:hint="Penyelesaian Pengaduan"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toStartOf="@+id/textView10"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutKepuasanMasyarakat">
@@ -334,7 +334,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutDataSampah"
-            style="@style/EditTextInputOrangeLayoutStyle"
+            style="@style/EditTextInputGreenLayoutStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -343,7 +343,7 @@
             android:hint="Data Sampah"
             android:textColorHint="@color/lightBlack"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:hintTextColor="@color/orange"
+            app:hintTextColor="@color/green"
             app:layout_constraintEnd_toStartOf="@+id/textView11"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayoutPenyelesaianPengaduan">

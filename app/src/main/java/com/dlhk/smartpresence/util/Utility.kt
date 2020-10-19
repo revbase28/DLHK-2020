@@ -4,12 +4,15 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.Camera
+import android.location.Geocoder
 import android.os.Environment
+import android.provider.Settings
 import android.util.Base64
 import android.util.Log
 import android.widget.ImageView
@@ -19,6 +22,7 @@ import androidx.fragment.app.FragmentManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.dlhk.smartpresence.R
+import com.dlhk.smartpresence.api.response.data.DataLocation
 import com.dlhk.smartpresence.util.Constant.Companion.DRAINAGE
 import com.dlhk.smartpresence.util.Constant.Companion.GARBAGE_COLLECTOR
 import com.dlhk.smartpresence.util.Constant.Companion.SWEEPER
@@ -193,6 +197,34 @@ class Utility {
                     Constant.LOCATION_REQUEST
                 )
             }
+        }
+
+        fun showGPSDisabledAlertToUser(context: Context, whenCancel: () -> Unit) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(context)
+            alertDialogBuilder.setMessage("GPS diperlukan untuk mengakses fitur ini")
+                .setCancelable(false)
+                .setPositiveButton("Hidupkan GPS",
+                    DialogInterface.OnClickListener { _, _ ->
+                        val callGPSSettingIntent = Intent(
+                            Settings.ACTION_LOCATION_SOURCE_SETTINGS
+                        ).also {
+                            context.startActivity(it)
+                        }
+                    })
+            alertDialogBuilder.setNegativeButton("Batal",
+                DialogInterface.OnClickListener { dialog, _ ->
+                    dialog.cancel()
+                    whenCancel()
+                })
+            val alert: AlertDialog = alertDialogBuilder.create()
+            alert.show()
+        }
+
+        fun getLocationAddressesFromCoordinate(context: Context, location: DataLocation): String {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+
+            return addresses[0].thoroughfare ?: ""
         }
 
         fun showLogoutConfirmationDialog(context: Context, logout: ()-> Unit){

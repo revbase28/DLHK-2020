@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dlhk.smartpresence.api.RetrofitInstance
-import com.dlhk.smartpresence.api.response.ResponseGetEmployee
+import com.dlhk.smartpresence.api.response.ResponseGetPresence
 import com.dlhk.smartpresence.api.response.ResponsePostRegionCoordinatorAssessment
 import com.dlhk.smartpresence.repositories.AssessmentRepo
 import com.dlhk.smartpresence.repositories.EmployeeRepo
@@ -17,7 +17,7 @@ class CivilApparatusViewModel(
     val assessmentRepo: AssessmentRepo
 ): ViewModel() {
 
-    val regionCoordinatorData: MutableLiveData<Resource<ResponseGetEmployee>> = MutableLiveData()
+    val regionCoordinatorData: MutableLiveData<Resource<ResponseGetPresence>> = MutableLiveData()
     val regionCoordinatorAssessmentData: MutableLiveData<Resource<ResponsePostRegionCoordinatorAssessment>> = MutableLiveData()
 
     fun getPresenceRegionCoordinator(){
@@ -45,7 +45,7 @@ class CivilApparatusViewModel(
 
     }
 
-    private fun handlePresenceRegionCoordinatorData(response: Response<ResponseGetEmployee>){
+    private fun handlePresenceRegionCoordinatorData(response: Response<ResponseGetPresence>){
         if(response.isSuccessful){
             response.body().let {
                 regionCoordinatorData.postValue(Resource.Success(it))

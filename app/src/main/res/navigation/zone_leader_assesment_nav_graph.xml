@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/drainageAssesmentFragment"
-        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.DrainageAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.DrainageAssessmentFragment"
         android:label="fragment_drainage_assessment"
         tools:layout="@layout/fragment_assessment_drainage" >
         <action
@@ -23,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/garbageCollectorAssesmentFragment"
-        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.GarbageCollectorAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.GarbageCollectorAssessmentFragment"
         android:label="fragment_garbage_collector_assesment"
         tools:layout="@layout/fragment_assesment_garbage_collector" >
         <action
@@ -39,7 +39,7 @@
     </fragment>
     <fragment
         android:id="@+id/sweeperAssesmentFragment"
-        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.SweeperAssesmentFragment"
+        android:name="com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.fragment.SweeperAssessmentFragment"
         android:label="fragment_sweeper_assessment"
         tools:layout="@layout/fragment_assessment_sweeper" >
         <action

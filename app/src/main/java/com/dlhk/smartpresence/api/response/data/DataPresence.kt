@@ -7,7 +7,7 @@ data class DataPresence(
     val employeeName: String,
     val employeeNumber: String,
     val livePhoto: Any,
-    val presenceId: Int,
+    val presenceId: Long,
     val presenceStatus: String,
     val regionName: String,
     val roleName: String,

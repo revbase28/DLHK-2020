@@ -50,23 +50,29 @@ class LoginActivity : AppCompatActivity() {
                         is Resource.Success -> {
                             Log.d("DATA USER", "${response.data}")
                             response.data?.let {
-                                viewModel.saveToSession(
-                                    sessionManager,
-                                    it.data
-                                )
-
                                 Utility.dismissLoadingDialog()
 
-                                val intent = Intent(this, MainMenuActivity::class.java).apply {
-                                    startActivity(this)
-                                    finish()
+                                when(it.data.RoleName) {
+                                    "Admin","Kepala Zona", "Koor Wilayah", "Admin Presence" -> {
+                                        viewModel.saveToSession(
+                                            sessionManager,
+                                            it.data
+                                        )
+                                        val intent = Intent(this, MainMenuActivity::class.java).apply {
+                                            startActivity(this)
+                                            finish()
+                                        }
+                                    }
+
+                                    else -> {
+                                        Utility.showWarningDialog("Anda tidak berwenang", "Anda tidak memiliki izin menggunakan aplikasi", this)
+                                    }
                                 }
                             }
                         }
 
                         is Resource.Error -> {
                             response.message?.let {
-                                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
                                 when(it){
                                     "Bad Request", "" -> {
                                         textError.visibility = View.VISIBLE

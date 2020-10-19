@@ -15,19 +15,21 @@ import androidx.lifecycle.Observer
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
-import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
+import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssessmentZoneLeaderActivity
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderViewModel
 import com.dlhk.smartpresence.util.*
 import com.dlhk.smartpresence.util.Constant.Companion.GARBAGE_COLLECTOR
 import com.hsalf.smileyrating.SmileyRating
 import kotlinx.android.synthetic.main.fragment_assesment_garbage_collector.*
 
-class GarbageCollectorAssesmentFragment : Fragment() {
+class GarbageCollectorAssessmentFragment : Fragment() {
 
     lateinit var viewModel: AssesmentZoneLeaderViewModel
     lateinit var activity : Activity
     lateinit var sessionManager: SessionManager
     var employeeDataList : ArrayList<DataGetPresence> = ArrayList()
+
+    lateinit var locationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,8 +48,10 @@ class GarbageCollectorAssesmentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val typefaceManager = TypefaceManager(activity)
-        viewModel = (activity as AssesmentZoneLeaderActivity).viewModel
-        sessionManager = SessionManager(activity as AssesmentZoneLeaderActivity)
+        viewModel = (activity as AssessmentZoneLeaderActivity).viewModel
+        sessionManager = SessionManager(activity as AssessmentZoneLeaderActivity)
+
+        startLocationUpdate()
 
         if(employeeDataList.size == 0){
             Utility.showLoadingDialog(childFragmentManager, "Loading EM Garbage")
@@ -71,6 +75,13 @@ class GarbageCollectorAssesmentFragment : Fragment() {
                 etNik.setText(selectedItem.employeeNumber)
                 etWilayah.setText(selectedItem.regionName)
                 etZone.setText(selectedItem.zoneName)
+
+                when(selectedItem.counter) {
+                    1 -> etSesi.setText("Sesi 2")
+                    2 -> etSesi.setText("Sesi 3")
+                    else -> etSesi.setText("Sesi 1")
+                }
+
                 presenceId = selectedItem.presenceId
             }
 
@@ -104,7 +115,7 @@ class GarbageCollectorAssesmentFragment : Fragment() {
                     if(viewModel.garbageCollectorDataAssessment.value != null) viewModel.garbageCollectorDataAssessment.value = null
 
                     Utility.showLoadingDialog(childFragmentManager, "Loading Garbage")
-                    viewModel.sendGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, Integer.parseInt(etSampahOrganik.text.toString()), Integer.parseInt(etSampahAnorganik.text.toString()))
+                    viewModel.sendGarbageCollectorAssessment(presenceId, discipline, calculation, separation, tps, Integer.parseInt(etSampahOrganik.text.toString()), Integer.parseInt(etSampahAnorganik.text.toString()), locationName)
                     viewModel.garbageCollectorDataAssessment.observe(viewLifecycleOwner, Observer { response ->
                         when(response){
                             is Resource.Success ->{
@@ -147,9 +158,17 @@ class GarbageCollectorAssesmentFragment : Fragment() {
                 is Resource.Error ->{
                     Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
                     Utility.dismissLoadingDialog()
-                    (activity as AssesmentZoneLeaderActivity).onBackPressed()
+                    (activity as AssessmentZoneLeaderActivity).onBackPressed()
                 }
             }
+        })
+    }
+
+    private fun startLocationUpdate(){
+        viewModel.getCurrentLocation().observe(viewLifecycleOwner, Observer {
+            this.locationName = Utility.getLocationAddressesFromCoordinate(activity, it)
+            val location = "Anda terdeteksi menilai di ${this.locationName}; ${it.latitude},${it.longitude}"
+            locationText.text = location
         })
     }
 
@@ -159,6 +178,7 @@ class GarbageCollectorAssesmentFragment : Fragment() {
         etZone.setText("")
         etSampahAnorganik.setText("")
         etSampahOrganik.setText("")
+        etSesi.setText("")
         ratingKetepatanWaktu.setRating(SmileyRating.Type.NONE)
         ratingPembuangan.setRating(SmileyRating.Type.NONE)
         ratingPenghitunganSampah.setRating(SmileyRating.Type.NONE)

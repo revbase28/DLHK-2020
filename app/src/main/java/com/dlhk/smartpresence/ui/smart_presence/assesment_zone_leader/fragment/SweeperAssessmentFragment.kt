@@ -15,11 +15,12 @@ import androidx.lifecycle.Observer
 import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.adapters.AutoCompleteAssesmentAdapter
 import com.dlhk.smartpresence.api.response.data.DataGetPresence
-import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
+import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssessmentZoneLeaderActivity
 import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderViewModel
 import com.dlhk.smartpresence.util.*
 import com.dlhk.smartpresence.util.Constant.Companion.SWEEPER
 import com.hsalf.smileyrating.SmileyRating
+import kotlinx.android.synthetic.main.activity_presence.*
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.*
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etName
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.etNik
@@ -33,12 +34,14 @@ import kotlinx.android.synthetic.main.fragment_assessment_sweeper.textInputLayou
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.textInputLayoutWilayah
 import kotlinx.android.synthetic.main.fragment_assessment_sweeper.textInputLayoutZona
 
-class SweeperAssesmentFragment : Fragment() {
+class SweeperAssessmentFragment : Fragment() {
 
     lateinit var viewModel: AssesmentZoneLeaderViewModel
     lateinit var activity : Activity
     lateinit var sessionManager: SessionManager
     var employeeDataList : ArrayList<DataGetPresence> = ArrayList()
+
+    lateinit var locationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +60,11 @@ class SweeperAssesmentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val typefaceManager = TypefaceManager(activity)
-        viewModel = (activity as AssesmentZoneLeaderActivity).viewModel
-        sessionManager = SessionManager(activity as AssesmentZoneLeaderActivity)
+        viewModel = (activity as AssessmentZoneLeaderActivity).viewModel
+        sessionManager = SessionManager(activity as AssessmentZoneLeaderActivity)
+
+        startLocationUpdate()
+
         if(employeeDataList.size == 0){
             Utility.showLoadingDialog(childFragmentManager, "Loading EM Sweeper")
             getEmployeeFromApi(sessionManager.getSessionZone()!!, sessionManager.getSessionRegion()!!,
@@ -75,6 +81,13 @@ class SweeperAssesmentFragment : Fragment() {
                 etNik.setText(selectedItem.employeeNumber)
                 etWilayah.setText(selectedItem.regionName)
                 etZone.setText(selectedItem.zoneName)
+
+                when(selectedItem.counter) {
+                    1 -> etSesi.setText("Sesi 2")
+                    2 -> etSesi.setText("Sesi 3")
+                    else -> etSesi.setText("Sesi 1")
+                }
+
                 presenceId = selectedItem.presenceId
             }
 
@@ -111,7 +124,7 @@ class SweeperAssesmentFragment : Fragment() {
                     if(viewModel.sweeperAssessmentData.value != null) viewModel.sweeperAssessmentData.value = null
 
                     Utility.showLoadingDialog(childFragmentManager, "Loading Sweeper")
-                    viewModel.sendSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian)
+                    viewModel.sendSweeperAssessment(presenceId, road, completeness, discipline, sidewalk, waterRope, roadMedian, locationName)
                     viewModel.sweeperAssessmentData.observe(viewLifecycleOwner, Observer { response ->
                         when(response){
                             is Resource.Success -> {
@@ -137,6 +150,15 @@ class SweeperAssesmentFragment : Fragment() {
         }
     }
 
+    private fun startLocationUpdate(){
+        viewModel.getCurrentLocation().observe(viewLifecycleOwner, Observer {
+            this.locationName = Utility.getLocationAddressesFromCoordinate(activity, it)
+            val location = "Anda terdeteksi menilai di ${this.locationName}; ${it.latitude},${it.longitude}"
+            locationText.text = location
+            Log.d("Location", "${it.latitude}, ${it.longitude}")
+        })
+    }
+
     private fun getEmployeeFromApi(zoneName: String, regionName: String, role: String, shift: String){
         viewModel.getEmployeePerRegionAndRole(zoneName, regionName, role, shift)
         viewModel.presenceData.observe(viewLifecycleOwner, Observer { response ->
@@ -152,9 +174,9 @@ class SweeperAssesmentFragment : Fragment() {
                     Utility.dismissLoadingDialog()
                 }
                 is Resource.Error ->{
-                    Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_LONG).show()
+                    Toast.makeText(activity, "Error Retrieving Employee Data", Toast.LENGTH_SHORT).show()
                     Utility.dismissLoadingDialog()
-                    (activity as AssesmentZoneLeaderActivity).onBackPressed()
+                    (activity as AssessmentZoneLeaderActivity).onBackPressed()
                 }
             }
         })
@@ -164,6 +186,7 @@ class SweeperAssesmentFragment : Fragment() {
         etNik.setText("")
         etWilayah.setText("")
         etZone.setText("")
+        etSesi.setText("")
         ratingBadanJalan.setRating(SmileyRating.Type.NONE)
         ratingKelengkapan.setRating(SmileyRating.Type.NONE)
         ratingDisiplin.setRating(SmileyRating.Type.NONE)

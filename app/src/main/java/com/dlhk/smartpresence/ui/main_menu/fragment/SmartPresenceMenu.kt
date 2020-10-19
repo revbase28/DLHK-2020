@@ -18,7 +18,7 @@ import com.dlhk.smartpresence.R
 import com.dlhk.smartpresence.ui.main_menu.MainMenuActivity
 import com.dlhk.smartpresence.ui.main_menu.MainMenuViewModel
 import com.dlhk.smartpresence.ui.smart_presence.assesment_region_coordinator.AssessmentRegionCoordinatorActivity
-import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssesmentZoneLeaderActivity
+import com.dlhk.smartpresence.ui.smart_presence.assesment_zone_leader.AssessmentZoneLeaderActivity
 import com.dlhk.smartpresence.ui.smart_presence.assessment_civil_apparatus.CivilAppartusAssessmentActivity
 import com.dlhk.smartpresence.ui.smart_presence.field_report.FieldReportActivity
 import com.dlhk.smartpresence.ui.smart_presence.presence.PresenceActivity
@@ -69,11 +69,11 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
         }
 
         cardAssesment.setOnClickListener {
-            if(sessionManager.getSessionRole() != "Admin") {
+            if(sessionManager.getSessionRole() != "Admin" && sessionManager.getSessionRole() != "Admin Presence") {
                 checkUserPresenceStatus(sessionManager.getSessionId()!!,
                     {
                         when(sessionManager.getSessionRole()){
-                            "Kepala Zona" -> startActivityTo(AssesmentZoneLeaderActivity::class.java)
+                            "Kepala Zona" -> startActivityTo(AssessmentZoneLeaderActivity::class.java)
                             "Koor Wilayah" -> startActivityTo(AssessmentRegionCoordinatorActivity::class.java)
                         }
                     },
@@ -122,7 +122,7 @@ class SmartPresenceMenu: BottomSheetDialogFragment() {
                 cardAbsen.isEnabled = false
                 cardAbsen.isClickable = false
             }
-            "Admin" -> {
+            "Admin", "Admin Presence" -> {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
                     view.cardAbsenChild.background.colorFilter = BlendModeColorFilter(
                         Color.parseColor("#BFBFBF"), BlendMode.SRC_IN)

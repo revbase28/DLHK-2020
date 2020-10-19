@@ -11,6 +11,9 @@ class SelfPresenceViewModelFactory(
 ): ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return SelfPresenceViewModel(attendanceRepo, app) as T
+        return SelfPresenceViewModel(
+            attendanceRepo,
+            app
+        ) as T
     }
 }

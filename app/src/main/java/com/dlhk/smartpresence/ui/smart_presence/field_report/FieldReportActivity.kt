@@ -52,7 +52,7 @@ class FieldReportActivity : AppCompatActivity() {
                 fragments.add(ZonePerformanceStatisticFragment())
             }
 
-            "Admin" -> {
+            "Admin", "Admin Presence" -> {
                 fragments.add(RegionPresenceStatisticFragment())
                 fragments.add(RegionPerformaceStatisticFragment())
             }

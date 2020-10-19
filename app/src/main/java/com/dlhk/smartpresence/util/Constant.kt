@@ -4,7 +4,7 @@ import com.dlhk.smartpresence.SmartPresenceApp
 
 class Constant {
     companion object{
-        const val BASE_URL = "https://a2ed9528b8ef.ngrok.io/api/"
+        const val BASE_URL = "https://5345231d71d0.ngrok.io/api/"
         const val REQUEST_IMAGE_CAPTURE = 1
 
         const val SESSION = "session"
@@ -23,7 +23,8 @@ class Constant {
         const val DIALOG_REASON_RUSAK = 1
 
         const val LOCATION_REQUEST = 3
-        const val READ_PHONE_STATE_REQUEST = 4
+        const val LOCATION_UPDATE_INTERVAL = 10000L
+        const val FASTEST_LOCATION_INTERVAL = 8000L
 
         const val DRAINAGE = "drainage"
         const val SWEEPER = "sweeper"
